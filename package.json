@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "retest": "npm run build && tsc ./tests/TS.spec && npm test",
-    "build": "tsc ./src/index"
+    "retest": "npm run build && tsc --p ./tests && npm test",
+    "build": "tsc"
   },
   "keywords": [
     "Vue",

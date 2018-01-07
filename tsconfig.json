@@ -2,15 +2,19 @@
 	"compilerOptions": {
 		"target": "es5",
 		"moduleResolution": "node",
+		"module": "commonjs",
 		"alwaysStrict": true,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"emitDecoratorMetadata": true,
-		"outDir": "../",
 		"typeRoots": [
 			"@types/jest"
 		]
-	}
+	},
+	"exclude": [
+		"node_modules",
+		"tests"
+	]
 }

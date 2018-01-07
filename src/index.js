@@ -1,8 +1,9 @@
 "use strict";
-/** (c) Raiondesu 2018
+/** Tuex v0.0.0
+ * (c) Raiondesu 2018
  * @license MIT
  */
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var desc = Object.getOwnPropertyDescriptor;
 function subscribe(callback) {
     console.log(callback);
@@ -84,4 +85,4 @@ function Tuex(plugins) {
         };
     };
 }
-exports["default"] = Tuex;
+exports.default = Tuex;

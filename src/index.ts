@@ -1,4 +1,5 @@
-/** (c) Raiondesu 2018
+/** Tuex v0.0.0
+ * (c) Raiondesu 2018
  * @license MIT
  */
 
@@ -9,7 +10,7 @@ const desc = Object.getOwnPropertyDescriptor;
 type Plugin<T> = (state: T, subscribe) => any;
 
 function subscribe(callback: (setter, store) => any) {
-  console.log(callback)
+  console.log(callback);
 }
 
 /**
