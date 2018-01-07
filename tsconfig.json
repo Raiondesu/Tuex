@@ -9,12 +9,20 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"emitDecoratorMetadata": true,
+		"lib": [
+			"es5",
+			"es2015.promise",
+			"dom"
+		],
+		"rootDirs": [
+			"src",
+			"test"
+		],
 		"typeRoots": [
 			"@types/jest"
 		]
 	},
 	"exclude": [
-		"node_modules",
-		"tests"
+		"node_modules"
 	]
 }

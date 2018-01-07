@@ -4,14 +4,19 @@
  */
 
 import { VueConstructor } from 'vue/types/vue';
+import { Plugin, Type } from './types';
 
 const desc = Object.getOwnPropertyDescriptor;
 
-type Plugin<T> = (state: T, subscribe) => any;
-
-function subscribe(callback: (setter, store) => any) {
-  console.log(callback);
+const pool: { [key: string]: ((store, key, ...args) => any)[] } = {
+	value: [],
+	getter: [],
+	setter: [],
+	action: []
 }
+
+var _store;
+var Vue;
 
 /**
  * @export Tuex decorator
@@ -19,23 +24,37 @@ function subscribe(callback: (setter, store) => any) {
  * @param {object} plain - object to convert
  * @returns Installable Vue plugin
  */
-export default function Tuex<T>(plugins: Plugin<T>[]) { return function (target: any) {
-  const obj = {};
-  let plain;
+export default function Tuex<T>(plugins: Plugin<T>[]) { return function (target: (new () => T) | (() => T) | T) {
+	const obj: T = {} as T;
+	let plain: T;
+	let targetConstructor = (target as new () => T);
+	let targetFunction = (target as () => T);
+
+	function subscribe(type: Type, callback: (store: T, key: keyof T) => any) {
+		pool[type].push(callback);
+	}
+
+	function StoreEvent(type: Type, store: T, key: keyof T, ...args) {
+		pool[type].forEach(callback => callback(store, key, ...args));
+	}
+
+	function replaceStore(store: T) {
+		_store = store;
+	}
 
   if (typeof target === 'function') {
-    try {
-      plain = new target();
+		try {
+      plain = new targetConstructor();
     } catch (e) {
-      plain = target();
+      plain = targetFunction();
     }
   } else {
-    plain = target;
+    plain = target as T;
   }
 
 	for (let key in plain) {
 		const define = (prop: PropertyDescriptor) => Object.defineProperty(obj, key, prop);
-    const descriptor = desc(plain, key) || desc(target.prototype, key);
+    const descriptor = desc(plain, key) || desc(targetConstructor.prototype, key);
 	
 		if (plain[key] instanceof Function)
 			define({
@@ -43,7 +62,7 @@ export default function Tuex<T>(plugins: Plugin<T>[]) { return function (target:
 				enumerable: false,
 				writable: false,
 				value: function() {
-					console.log('Called ' + [plain] + '.' + key + ' function with ' + arguments.length + ' arguments');
+					StoreEvent('action', obj, key, ...arguments);
 					return (<any>plain)[key](arguments);
 				}
 			});
@@ -52,11 +71,10 @@ export default function Tuex<T>(plugins: Plugin<T>[]) { return function (target:
 				configurable: false,
 				enumerable: true,
 				get: () => {
-					console.log('Accessing property ' + key);
 					return plain[key];
 				},
 				set: value => {
-					console.log('Assigning property ' + key + ' with value of ' + value);
+					StoreEvent('value', obj, key, value);
 					plain[key] = value;
 				}
 			});
@@ -65,7 +83,7 @@ export default function Tuex<T>(plugins: Plugin<T>[]) { return function (target:
 				configurable: false,
 				enumerable: false,
 				get: () => {
-					console.log('Accessing getter ' + key);
+					StoreEvent('getter', obj, key);
 					return plain[key];
 				}
 			});
@@ -74,16 +92,20 @@ export default function Tuex<T>(plugins: Plugin<T>[]) { return function (target:
 				configurable: false,
 				enumerable: false,
 				set: value => {
-					console.log('Assigning value ' + value + ' to setter ' + key);
+					StoreEvent('setter', obj, key, value);
 					plain[key] = value;
 				}
 			});
 	}
 
 	return {
-		install(Vue: VueConstructor) {
-      Vue.prototype.$store = obj;
-      plugins && plugins.forEach(plugin => plugin(Vue.prototype.$store, subscribe));
+		install(_Vue: VueConstructor) {
+			Vue = _Vue;
+      _store = Vue.prototype.$store = obj;
+      plugins && plugins.forEach(install => install(_store, {
+				subscribe,
+				replaceStore
+			}));
 		}
 	};
 }}

@@ -1,6 +1,6 @@
 test('Works as es5 funciton', () => {
 	var Vue = require('vue/dist/vue');
-	var Tuex = require('../index.js').default;
+	var Tuex = require('../index.js');
 
 	var Test = Tuex()({
 		test: 'ads',
