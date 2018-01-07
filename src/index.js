@@ -2,7 +2,7 @@
 /** (c) Raiondesu 2018
  * @license MIT
  */
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var desc = Object.getOwnPropertyDescriptor;
 function subscribe(callback) {
     console.log(callback);
@@ -15,7 +15,6 @@ function subscribe(callback) {
  */
 function Tuex(plugins) {
     return function (target) {
-        console.log(arguments.length);
         var obj = {};
         var plain;
         if (typeof target === 'function') {
@@ -85,4 +84,4 @@ function Tuex(plugins) {
         };
     };
 }
-exports.default = Tuex;
+exports["default"] = Tuex;

@@ -5,18 +5,12 @@
 		"alwaysStrict": true,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
-		"noImplicitAny": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"emitDecoratorMetadata": true,
+		"outDir": "../",
 		"typeRoots": [
 			"@types/jest"
 		]
-	},
-	"exclude": [
-		"tests"
-	],
-	"files": [
-		"index.ts"
-	]
+	}
 }

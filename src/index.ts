@@ -1,4 +1,4 @@
-/** (c) Raiondesu
+/** (c) Raiondesu 2018
  * @license MIT
  */
 
@@ -6,7 +6,11 @@ import { VueConstructor } from 'vue/types/vue';
 
 const desc = Object.getOwnPropertyDescriptor;
 
-export type Plugin<T> = (state: T) => any; 
+type Plugin<T> = (state: T, subscribe) => any;
+
+function subscribe(callback: (setter, store) => any) {
+  console.log(callback)
+}
 
 /**
  * @export Tuex decorator
@@ -14,13 +18,23 @@ export type Plugin<T> = (state: T) => any;
  * @param {object} plain - object to convert
  * @returns Installable Vue plugin
  */
-export default <T>(plugins: Plugin<T>[]) => (plain: T) => {
-	console.log(plugins);
-	const obj = {};
+export default function Tuex<T>(plugins: Plugin<T>[]) { return function (target: any) {
+  const obj = {};
+  let plain;
 
-	for (const key in plain) {
+  if (typeof target === 'function') {
+    try {
+      plain = new target();
+    } catch (e) {
+      plain = target();
+    }
+  } else {
+    plain = target;
+  }
+
+	for (let key in plain) {
 		const define = (prop: PropertyDescriptor) => Object.defineProperty(obj, key, prop);
-		const descriptor = desc(plain, key);
+    const descriptor = desc(plain, key) || desc(target.prototype, key);
 	
 		if (plain[key] instanceof Function)
 			define({
@@ -31,45 +45,44 @@ export default <T>(plugins: Plugin<T>[]) => (plain: T) => {
 					console.log('Called ' + [plain] + '.' + key + ' function with ' + arguments.length + ' arguments');
 					return (<any>plain)[key](arguments);
 				}
-			})
+			});
 		else if (!descriptor.get && !descriptor.set)
 			define({
 				configurable: false,
 				enumerable: true,
 				get: () => {
-					console.log('Accessing ' + [plain] + '.' + key + ' property');
+					console.log('Accessing property ' + key);
 					return plain[key];
 				},
 				set: value => {
-					console.log('Assigning ' + value + ' to ' + [plain] + '.' + key + ' property');
+					console.log('Assigning property ' + key + ' with value of ' + value);
 					plain[key] = value;
 				}
 			});
-			
 		else if (descriptor.get && !descriptor.set)
 			define({
 				configurable: false,
 				enumerable: false,
 				get: () => {
-					console.log('Accessed ' + [plain] + '.' + key + ' getter');
+					console.log('Accessing getter ' + key);
 					return plain[key];
 				}
-			})
-			
+			});
 		else if (!descriptor.get && descriptor.set)
 			define({
 				configurable: false,
 				enumerable: false,
-				set: (value) => {
-					console.log('Assigned ' + value + ' to ' + [plain] + '.' + key + ' setter');
+				set: value => {
+					console.log('Assigning value ' + value + ' to setter ' + key);
 					plain[key] = value;
 				}
-			})
+			});
 	}
 
 	return {
 		install(Vue: VueConstructor) {
-			Vue.prototype.$state = obj;
+      Vue.prototype.$store = obj;
+      plugins && plugins.forEach(plugin => plugin(Vue.prototype.$store, subscribe));
 		}
 	};
-}
+}}
