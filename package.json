@@ -1,0 +1,32 @@
+{
+  "name": "tuex",
+  "version": "0.0.0",
+  "description": "A mostly reasonable replacement for Vuex",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "retest": "npm run build && npm test",
+    "build": "tsc"
+  },
+  "keywords": [
+    "Vue",
+    "Vuex",
+    "Vue.js",
+    "JS",
+    "JavaScript",
+    "TypeScript",
+    "TS",
+    "Replacement",
+    "Alternative"
+  ],
+  "author": "Raiondesu",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^22.0.1",
+    "es6-promise": "4.1.1",
+    "jest": "^22.0.4",
+    "ts-jest": "^22.0.1",
+    "ts-node": "3.1.0",
+    "vue": "^2.5.13"
+  }
+}
