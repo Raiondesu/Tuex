@@ -1,4 +1,4 @@
-test('Works as es5 funciton', () => {
+test('Works as class', () => {
 	var Vue = require('vue/dist/vue');
 	var Tuex = require('../dist/index.js').default;
 
