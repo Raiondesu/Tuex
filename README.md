@@ -11,24 +11,24 @@ import Vue from 'vue'
 import Tuex from 'tuex'
 
 const TuexStore = new Tuex({
-		test: 'ads',
+    test: 'ads',
 
-		get otherTest() {
-			return 'wow';
+    get otherTest() {
+      return 'wow';
     },
 
     set x(value) {
       this.test = value;
     },
 
-		wow(amount, appendix) {
+    wow(amount, appendix) {
       var wows = [];
       for (let i = 0; i < amount; i++)
         wows.push('wow');
 
-			console.log(wows, appendix);
-		}
-	}, [
+      console.log(wows, appendix);
+    }
+  }, [
     function () {
       this.subscribe('setter', function(store, key, value) {
         store[key] = 'ads';

@@ -1,5 +1,5 @@
 node_modules
 ISSUE_TEMPLATE.md
-test
+tests
 .gitignore
 .travis.yml
