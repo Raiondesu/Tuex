@@ -38,5 +38,15 @@ const TuexStore = new Tuex({
       })
     }
   ])
+```
 
+```js
+  ...
+  methods: {
+    someMethod() {
+      this.$store.wow(2, 'ads');
+      // => wowwow ads
+    }
+  }
+  ...
 ```
