@@ -135,12 +135,11 @@ export default class Tuex<T extends { [key: string]: any }> {
           enumerable: false,
           set: value => {
             $this.storeEvent.call($this, 'setter', obj, key, value);
-            console.log(key);
             plain[key] = value;
           }
         });
-      else
-        console.assert(false, 'Descriptor of ' + key + ' is wrong');
+      else if (process.env.NODE_ENV !== 'production')
+        console.error('Descriptor of ' + key + ' is wrong');
     }
 
     return obj;

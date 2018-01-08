@@ -22,6 +22,6 @@ function isGetter(descriptor) {
 }
 exports.isGetter = isGetter;
 function isSetter(descriptor) {
-    return !!descriptor && descriptor.get && !descriptor.set;
+    return !!descriptor && !descriptor.get && descriptor.set;
 }
 exports.isSetter = isSetter;

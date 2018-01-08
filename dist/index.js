@@ -125,12 +125,11 @@ var Tuex = /** @class */ (function () {
                     enumerable: false,
                     set: function (value) {
                         $this.storeEvent.call($this, 'setter', obj, key, value);
-                        console.log(key);
                         plain[key] = value;
                     }
                 });
-            else
-                console.assert(false, 'Descriptor of ' + key + ' is wrong');
+            else if (process.env.NODE_ENV !== 'production')
+                console.error('Descriptor of ' + key + ' is wrong');
         };
         for (var key in plain) {
             _loop_1(key);
