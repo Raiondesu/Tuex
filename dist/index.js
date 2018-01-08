@@ -96,7 +96,7 @@ var Tuex = /** @class */ (function () {
                     writable: false,
                     value: function () {
                         (_a = $this.storeEvent).call.apply(_a, [$this, 'action', plain, key].concat([].concat(arguments)));
-                        return plain[key](arguments);
+                        return plain[key].apply(plain, arguments);
                         var _a;
                     }
                 });

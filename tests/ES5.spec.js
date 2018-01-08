@@ -15,7 +15,7 @@ test('Works as es5 funciton', () => {
 
 		wow(amount, appendix) {
       expect(amount).toBe(2);
-      expect(appendix).toBe('ads');
+      expect(appendix).toBe('asd');
 
       var wows = [];
 
