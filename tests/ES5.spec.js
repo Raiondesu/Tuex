@@ -1,32 +1,54 @@
 test('Works as es5 funciton', () => {
 	var Vue = require('vue/dist/vue');
-	var Tuex = require('../index.js');
+	var Tuex = require('../dist/index.js').default;
 
-	var Test = Tuex()({
+	var Test = new Tuex({
 		test: 'ads',
 
 		get otherTest() {
 			return 'wow';
-		},
+    },
 
-		wow() {
-			console.log('wow');
+    set x(value) {
+      this.test = value;
+    },
+
+		wow(amount, appendix) {
+      var wows = [];
+
+      for (let i = 0; i < amount; i++) {
+        wows.push('wow ');
+      }
+
+      wows.push(appendix)
+
+			console.log(wows);
 		}
-	});
+	}, [
+    function () {
+      this.subscribe('setter', function(store, key, value) {
+        store[key] = 'ads';
+        expect(vm.$store.test).toBe('ads');
 
-	Vue.use(Test);
+        console.log(key + ' is being set with `' + value + '`');
+      })
+    }
+  ]);
+
+  Vue.use(Test);
 
 	var vm = new Vue();
 
 	expect(vm.$store).toBeTruthy();
 	expect(vm.$store.test).toBe('ads');
 	expect(vm.$store.otherTest).toBe('wow');
-	
-	vm.$store.test = vm.$store.otherTest;
 
+	vm.$store.test = vm.$store.otherTest;
 	expect(vm.$store.test).toBe('wow');
 
 	expect(vm.$store.wow).toBeInstanceOf(Function);
+  vm.$store.wow(2, 'asd');
 
-	vm.$store.wow(2, 'asd');
+  vm.$store.x = 'new value of test';
+  expect(vm.$store.test).toBe('new value of test');
 })

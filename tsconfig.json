@@ -8,21 +8,22 @@
 		"experimentalDecorators": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"emitDecoratorMetadata": true,
+    "emitDecoratorMetadata": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
 		"lib": [
 			"es5",
 			"es2015.promise",
 			"dom"
 		],
-		"rootDirs": [
-			"src",
-			"test"
-		],
 		"typeRoots": [
 			"@types/jest"
 		]
-	},
-	"exclude": [
-		"node_modules"
-	]
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "types",
+    "./tests"
+  ]
 }
