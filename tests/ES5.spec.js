@@ -18,8 +18,8 @@ test('Works as es5 funciton', () => {
 		}
 	}, [
     function () {
-      this.subscribe('setter', function(store, key) {
-        console.log(key);
+      this.subscribe('setter', function(store, key, value) {
+        console.log(key + ' is being set with `' + value + '`');
       })
     }
   ]);
