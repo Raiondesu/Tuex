@@ -1,0 +1,5 @@
+node_modules
+ISSUE_TEMPLATE.md
+test
+.gitignore
+.travis.yml

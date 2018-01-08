@@ -1,8 +1,8 @@
 test('Works as es5 funciton', () => {
 	var Vue = require('vue/dist/vue');
-	var Tuex = require('../index.js');
+	var Tuex = require('../dist/index.js').default;
 
-	var Test = Tuex()({
+	var Test = new Tuex({
 		test: 'ads',
 
 		get otherTest() {
@@ -21,7 +21,7 @@ test('Works as es5 funciton', () => {
 	expect(vm.$store).toBeTruthy();
 	expect(vm.$store.test).toBe('ads');
 	expect(vm.$store.otherTest).toBe('wow');
-	
+
 	vm.$store.test = vm.$store.otherTest;
 
 	expect(vm.$store.test).toBe('wow');

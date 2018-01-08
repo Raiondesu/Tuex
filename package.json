@@ -2,9 +2,9 @@
   "name": "tuex",
   "version": "0.0.0",
   "description": "A mostly reasonable replacement for Vuex",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "jest",
+    "test": "tsc --p ./tsconfig.tests.json && jest",
     "retest": "npm run build && npm test",
     "build": "tsc"
   },
