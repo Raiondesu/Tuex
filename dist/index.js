@@ -21,7 +21,8 @@ var Tuex = /** @class */ (function () {
             value: [],
             getter: [],
             setter: [],
-            action: []
+            action: [],
+            global: []
         };
         this.replaceStore(target);
         plugins && plugins.forEach(function (plugin) { return plugin.apply(_this); });
@@ -36,7 +37,7 @@ var Tuex = /** @class */ (function () {
     /**
      *
      *
-     * @param {'value' | 'getter' | 'setter' | 'action'} type
+     * @param {'value' | 'getter' | 'setter' | 'action' | 'global'} type
      * @param {(store: T, key: keyof T) => any} callback
      * @returns a funciton to unsubscribe from event
      * @memberof Tuex
@@ -92,7 +93,7 @@ var Tuex = /** @class */ (function () {
                     enumerable: false,
                     writable: false,
                     value: function () {
-                        (_a = $this.storeEvent).call.apply(_a, [$this, 'action', obj, key].concat([].concat(arguments)));
+                        (_a = $this.storeEvent).call.apply(_a, [$this, 'action', plain, key].concat([].concat(arguments)));
                         return plain[key](arguments);
                         var _a;
                     }
@@ -102,11 +103,12 @@ var Tuex = /** @class */ (function () {
                     configurable: false,
                     enumerable: true,
                     get: function () {
-                        $this.storeEvent.call($this, 'value', obj, key);
+                        $this.storeEvent.call($this, 'value', plain, key);
                         return plain[key];
                     },
                     set: function (value) {
-                        $this.storeEvent.call($this, 'value', obj, key, value);
+                        $this.storeEvent.call($this, 'value', plain, key, value);
+                        $this.storeEvent.call($this, 'global', plain, key, value);
                         plain[key] = value;
                     }
                 });
@@ -115,7 +117,7 @@ var Tuex = /** @class */ (function () {
                     configurable: false,
                     enumerable: false,
                     get: function () {
-                        $this.storeEvent.call($this, 'getter', obj, key);
+                        $this.storeEvent.call($this, 'getter', plain, key);
                         return plain[key];
                     }
                 });
@@ -124,7 +126,8 @@ var Tuex = /** @class */ (function () {
                     configurable: false,
                     enumerable: false,
                     set: function (value) {
-                        $this.storeEvent.call($this, 'setter', obj, key, value);
+                        $this.storeEvent.call($this, 'setter', plain, key, value);
+                        $this.storeEvent.call($this, 'global', plain, key, value);
                         plain[key] = value;
                     }
                 });

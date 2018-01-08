@@ -13,12 +13,23 @@ test('Works as es5 funciton', () => {
       this.test = value;
     },
 
-		wow() {
-			console.log('wow');
+		wow(amount, appendix) {
+      var wows = [];
+
+      for (let i = 0; i < amount; i++) {
+        wows.push('wow ');
+      }
+
+      wows.push(appendix)
+
+			console.log(wows);
 		}
 	}, [
     function () {
       this.subscribe('setter', function(store, key, value) {
+        store[key] = 'ads';
+        expect(vm.$store.test).toBe('ads');
+
         console.log(key + ' is being set with `' + value + '`');
       })
     }
@@ -33,14 +44,11 @@ test('Works as es5 funciton', () => {
 	expect(vm.$store.otherTest).toBe('wow');
 
 	vm.$store.test = vm.$store.otherTest;
-
 	expect(vm.$store.test).toBe('wow');
 
 	expect(vm.$store.wow).toBeInstanceOf(Function);
-
   vm.$store.wow(2, 'asd');
 
   vm.$store.x = 'new value of test';
-
   expect(vm.$store.test).toBe('new value of test');
 })

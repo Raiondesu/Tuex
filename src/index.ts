@@ -19,7 +19,8 @@ export default class Tuex<T extends { [key: string]: any }> {
     value: [],
     getter: [],
     setter: [],
-    action: []
+    action: [],
+    global: []
   }
 
 	private storeEvent(type: Type, store: T, key: keyof T, ...args) {
@@ -44,7 +45,7 @@ export default class Tuex<T extends { [key: string]: any }> {
   /**
    *
    *
-   * @param {'value' | 'getter' | 'setter' | 'action'} type
+   * @param {'value' | 'getter' | 'setter' | 'action' | 'global'} type
    * @param {(store: T, key: keyof T) => any} callback
    * @returns a funciton to unsubscribe from event
    * @memberof Tuex
@@ -84,6 +85,8 @@ export default class Tuex<T extends { [key: string]: any }> {
    *
    * Converts a plain js object into a valid Tuex-store
    *
+   * TODO: make recursive for object values
+   *
    * @param {T} plain - object to convert
    * @param {new () => T} [constructor] - constructor (if any)
    * @returns {T} - converted store
@@ -103,7 +106,7 @@ export default class Tuex<T extends { [key: string]: any }> {
           enumerable: false,
           writable: false,
           value: function() {
-            $this.storeEvent.call($this, 'action', obj, key, ...[].concat(arguments));
+            $this.storeEvent.call($this, 'action', plain, key, ...[].concat(arguments));
             return (<any>plain)[key](arguments);
           }
         });
@@ -112,11 +115,12 @@ export default class Tuex<T extends { [key: string]: any }> {
           configurable: false,
           enumerable: true,
           get: () => {
-            $this.storeEvent.call($this, 'value', obj, key);
+            $this.storeEvent.call($this, 'value', plain, key);
             return plain[key];
           },
           set: value => {
-            $this.storeEvent.call($this, 'value', obj, key, value);
+            $this.storeEvent.call($this, 'value', plain, key, value);
+            $this.storeEvent.call($this, 'global', plain, key, value);
             plain[key] = value;
           }
         });
@@ -125,7 +129,7 @@ export default class Tuex<T extends { [key: string]: any }> {
           configurable: false,
           enumerable: false,
           get: () => {
-            $this.storeEvent.call($this, 'getter', obj, key);
+            $this.storeEvent.call($this, 'getter', plain, key);
             return plain[key];
           }
         });
@@ -134,7 +138,8 @@ export default class Tuex<T extends { [key: string]: any }> {
           configurable: false,
           enumerable: false,
           set: value => {
-            $this.storeEvent.call($this, 'setter', obj, key, value);
+            $this.storeEvent.call($this, 'setter', plain, key, value);
+            $this.storeEvent.call($this, 'global', plain, key, value);
             plain[key] = value;
           }
         });
