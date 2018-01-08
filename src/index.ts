@@ -107,7 +107,7 @@ export default class Tuex<T extends { [key: string]: any }> {
           writable: false,
           value: function() {
             $this.storeEvent.call($this, 'action', plain, key, ...[].concat(arguments));
-            return (<any>plain)[key](arguments);
+            return (<any>plain)[key].apply(plain, arguments);
           }
         });
       else if (isValue(descriptor))

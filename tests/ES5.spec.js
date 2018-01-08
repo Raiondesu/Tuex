@@ -14,13 +14,16 @@ test('Works as es5 funciton', () => {
     },
 
 		wow(amount, appendix) {
+      expect(amount).toBe(2);
+      expect(appendix).toBe('ads');
+
       var wows = [];
 
       for (let i = 0; i < amount; i++) {
         wows.push('wow ');
       }
 
-      wows.push(appendix)
+      wows.push(appendix);
 
 			console.log(wows);
 		}
