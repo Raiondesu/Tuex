@@ -28,8 +28,9 @@ const TuexStore = new Tuex({
 
     console.log(wows, appendix);
   }
-}, [
+}, [ // Plugins here:
   function () {
+    // this === TuexStore
     this.subscribe('setter', function(store, key, value) {
       store[key] = 'ads';
       expect(vm.$store.test).toBe('ads');
