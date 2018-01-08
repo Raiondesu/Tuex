@@ -6,11 +6,13 @@
   "scripts": {
     "test": "jest",
     "retest": "npm run build && npm test",
+    "preversion": "npm run retest",
     "build": "tsc"
   },
   "keywords": [
     "Vue",
     "Vuex",
+    "Tuex",
     "Vue.js",
     "JS",
     "JavaScript",
@@ -23,10 +25,12 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^22.0.1",
+    "@types/node": "^8.5.8",
     "es6-promise": "4.1.1",
     "jest": "^22.0.4",
     "ts-jest": "^22.0.1",
     "ts-node": "3.1.0",
+    "typescript": "^2.6.2",
     "vue": "^2.5.13"
   }
 }
