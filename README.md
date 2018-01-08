@@ -11,33 +11,33 @@ import Vue from 'vue'
 import Tuex from 'tuex'
 
 const TuexStore = new Tuex({
-    test: 'ads',
+  test: 'ads',
 
-    get otherTest() {
-      return 'wow';
-    },
+  get otherTest() {
+    return 'wow';
+  },
 
-    set x(value) {
-      this.test = value;
-    },
+  set x(value) {
+    this.test = value;
+  },
 
-    wow(amount, appendix) {
-      var wows = [];
-      for (let i = 0; i < amount; i++)
-        wows.push('wow');
+  wow(amount, appendix) {
+    var wows = [];
+    for (let i = 0; i < amount; i++)
+      wows.push('wow');
 
-      console.log(wows, appendix);
-    }
-  }, [
-    function () {
-      this.subscribe('setter', function(store, key, value) {
-        store[key] = 'ads';
-        expect(vm.$store.test).toBe('ads');
+    console.log(wows, appendix);
+  }
+}, [
+  function () {
+    this.subscribe('setter', function(store, key, value) {
+      store[key] = 'ads';
+      expect(vm.$store.test).toBe('ads');
 
-        console.log(key + ' is being set with `' + value + '`');
-      })
-    }
-  ])
+      console.log(key + ' is being set with `' + value + '`');
+    })
+  }
+])
 ```
 
 ```js
