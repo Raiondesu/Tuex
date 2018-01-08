@@ -33,7 +33,6 @@ const TuexStore = new Tuex({
     // this === TuexStore
     this.subscribe('setter', function(store, key, value) {
       store[key] = 'ads';
-      expect(vm.$store.test).toBe('ads');
 
       console.log(key + ' is being set with `' + value + '`');
     })
