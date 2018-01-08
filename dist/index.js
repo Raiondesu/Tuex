@@ -76,6 +76,8 @@ var Tuex = /** @class */ (function () {
      *
      * Converts a plain js object into a valid Tuex-store
      *
+     * TODO: make recursive for object values
+     *
      * @param {T} plain - object to convert
      * @param {new () => T} [constructor] - constructor (if any)
      * @returns {T} - converted store
