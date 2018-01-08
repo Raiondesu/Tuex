@@ -7,14 +7,24 @@ test('Works as es5 funciton', () => {
 
 		get otherTest() {
 			return 'wow';
-		},
+    },
+
+    set x(value) {
+      this.test = value;
+    },
 
 		wow() {
 			console.log('wow');
 		}
-	});
+	}, [
+    function () {
+      this.subscribe('setter', function(store, key) {
+        console.log(key);
+      })
+    }
+  ]);
 
-	Vue.use(Test);
+  Vue.use(Test);
 
 	var vm = new Vue();
 
@@ -28,5 +38,9 @@ test('Works as es5 funciton', () => {
 
 	expect(vm.$store.wow).toBeInstanceOf(Function);
 
-	vm.$store.wow(2, 'asd');
+  vm.$store.wow(2, 'asd');
+
+  vm.$store.x = 'new value of test';
+
+  expect(vm.$store.test).toBe('new value of test');
 })

@@ -10,7 +10,7 @@ var util_1 = require("./util");
 var Tuex = /** @class */ (function () {
     /**
      * Creates an instance of Tuex.
-     * @param {((new () => T) | (() => T) | T)} store - can be a plain object, function that returns an object or a constructor function (class)
+     * @param {((new () => T) | (() => T) | T)} target - can be a plain object, function that returns an object or a constructor function (class)
      * @param {Plugin<T>[]} plugins - optional plugins to install
      * @memberof Store
      */
@@ -24,10 +24,7 @@ var Tuex = /** @class */ (function () {
             action: []
         };
         this.replaceStore(target);
-        plugins && plugins.forEach(function (install) { return install(_this.store, {
-            replaceStore: _this.replaceStore,
-            subscribe: _this.subscribe
-        }); });
+        plugins && plugins.forEach(function (plugin) { return plugin.apply(_this); });
     }
     Tuex.prototype.storeEvent = function (type, store, key) {
         var args = [];
@@ -47,9 +44,8 @@ var Tuex = /** @class */ (function () {
     Tuex.prototype.subscribe = function (type, callback) {
         var _this = this;
         this.eventPool[type].push(callback);
-        var $this = this;
         return function () {
-            $this.eventPool[type] = _this.eventPool[type].filter(function (c) { return c != callback; }).slice();
+            _this.eventPool[type] = _this.eventPool[type].filter(function (c) { return c != callback; }).slice();
         };
     };
     /** replaceStore
@@ -58,30 +54,22 @@ var Tuex = /** @class */ (function () {
      * converting it from a target object/function/constructor
      *
      * @param {(T | (new () => T) | (() => T))} target
-     * @returns a function that replaces the new store with the old one just in case.
      * @memberof Tuex
      */
     Tuex.prototype.replaceStore = function (target) {
-        var oldStore = this.store;
-        var targetConstructor = target;
-        var targetFunction = target;
         var plain;
         if (util_1.isFunction(target)) {
             try {
-                plain = new targetConstructor();
+                plain = new target();
             }
             catch (e) {
-                plain = targetFunction();
+                plain = target();
             }
         }
         else {
             plain = target;
         }
         this.store = this.objectToStore(plain);
-        var $this = this;
-        return function () {
-            $this.replaceStore(oldStore);
-        };
     };
     /** objectToStore
      *
@@ -137,9 +125,12 @@ var Tuex = /** @class */ (function () {
                     enumerable: false,
                     set: function (value) {
                         $this.storeEvent.call($this, 'setter', obj, key, value);
+                        console.log(key);
                         plain[key] = value;
                     }
                 });
+            else
+                console.assert(false, 'Descriptor of ' + key + ' is wrong');
         };
         for (var key in plain) {
             _loop_1(key);

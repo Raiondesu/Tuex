@@ -38,10 +38,7 @@ export default class Tuex<T extends { [key: string]: any }> {
   ) {
     this.replaceStore(target);
 
-    plugins && plugins.forEach(install => install(this.store, {
-      replaceStore: this.replaceStore,
-      subscribe: this.subscribe
-    }));
+    plugins && plugins.forEach(plugin => plugin.apply(this));
   }
 
   /**
@@ -54,10 +51,8 @@ export default class Tuex<T extends { [key: string]: any }> {
    */
   public subscribe(type: Type, callback: (store: T, key: keyof T) => any) {
     this.eventPool[type].push(callback);
-
-    const $this = this;
     return () => {
-      $this.eventPool[type] = [...this.eventPool[type].filter(c => c != callback)];
+      this.eventPool[type] = [...this.eventPool[type].filter(c => c != callback)];
     }
   }
 
@@ -70,23 +65,19 @@ export default class Tuex<T extends { [key: string]: any }> {
    * @memberof Tuex
    */
   public replaceStore(target: T | (new () => T) | (() => T)) {
-    const targetConstructor = (target as new () => T);
-    const targetFunction = (target as () => T);
     let plain: T;
 
     if (isFunction(target)) {
       try {
-        plain = new targetConstructor();
+        plain = new (target as new () => T)();
       } catch (e) {
-        plain = targetFunction();
+        plain = (target as () => T)();
       }
     } else {
       plain = target as T;
     }
 
     this.store = this.objectToStore(plain);
-
-    const $this = this;
   }
 
   /** objectToStore
@@ -144,9 +135,12 @@ export default class Tuex<T extends { [key: string]: any }> {
           enumerable: false,
           set: value => {
             $this.storeEvent.call($this, 'setter', obj, key, value);
+            console.log(key);
             plain[key] = value;
           }
         });
+      else
+        console.assert(false, 'Descriptor of ' + key + ' is wrong');
     }
 
     return obj;

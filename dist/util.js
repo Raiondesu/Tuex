@@ -18,10 +18,10 @@ function isValue(descriptor) {
 }
 exports.isValue = isValue;
 function isGetter(descriptor) {
-    return !!descriptor && !descriptor.value && descriptor.get && !descriptor.set;
+    return !!descriptor && descriptor.get && !descriptor.set;
 }
 exports.isGetter = isGetter;
 function isSetter(descriptor) {
-    return !!descriptor && !descriptor.value && descriptor.get && !descriptor.set;
+    return !!descriptor && descriptor.get && !descriptor.set;
 }
 exports.isSetter = isSetter;

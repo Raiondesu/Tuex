@@ -17,9 +17,9 @@ export function isValue(descriptor: PropertyDescriptor) {
 }
 
 export function isGetter(descriptor: PropertyDescriptor) {
-  return !!descriptor && !descriptor.value && descriptor.get && !descriptor.set;
+  return !!descriptor && descriptor.get && !descriptor.set;
 }
 
 export function isSetter(descriptor: PropertyDescriptor) {
-  return !!descriptor && !descriptor.value && descriptor.get && !descriptor.set;
+  return !!descriptor && !descriptor.get && descriptor.set;
 }
