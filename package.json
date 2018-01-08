@@ -4,7 +4,7 @@
   "description": "A mostly reasonable replacement for Vuex",
   "main": "dist/index.js",
   "scripts": {
-    "test": "tsc --p ./tsconfig.tests.json && jest",
+    "test": "jest",
     "retest": "npm run build && npm test",
     "build": "tsc"
   },
