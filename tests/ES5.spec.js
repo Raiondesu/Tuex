@@ -1,6 +1,6 @@
 test('Works as class', () => {
 	var Vue = require('vue/dist/vue');
-	var Tuex = require('../dist/index.js').default;
+	var Tuex = require('../dist').default;
 
 	var Test = new Tuex({
 		test: 'ads',
@@ -17,26 +17,28 @@ test('Works as class', () => {
       expect(amount).toBe(2);
       expect(appendix).toBe('asd');
 
-      var wows = [];
+      var wows = '';
 
-      for (let i = 0; i < amount; i++) {
-        wows.push('wow ');
-      }
+      for (let i = 0; i < amount; i++)
+        wows += 'wow ';
 
-      wows.push(appendix);
+      wows += appendix;
 
 			console.log(wows);
 		}
-	}, [
-    function () {
-      this.subscribe('setter', function(store, key, value) {
-        store[key] = 'ads';
-        expect(vm.$store.test).toBe('ads');
+	}, {
+    plugins: [
+      function () {
+        this.subscribe('setter', function(store, key, value) {
+          expect(key).toBe('x');
+          store[key] = 'ads';
+          expect(vm.$store.test).toBe('ads');
 
-        console.log(key + ' is being set with `' + value + '`');
-      })
-    }
-  ]);
+          console.log(key + ' is being set with `' + value + '`');
+        })
+      }
+    ]
+  });
 
   Vue.use(Test);
 

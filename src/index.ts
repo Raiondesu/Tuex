@@ -1,8 +1,8 @@
-import { Plugin, Type } from "./types";
-import { desc, isFunction, isValue, isGetter, isSetter } from "./util";
+import { desc, isFunction, isValue, isGetter, isSetter, isObject } from "./util";
 import { VueConstructor } from "vue/types/vue";
 import {} from 'node';
 
+export type EventType = 'value' | 'getter' | 'setter' | 'action' | 'global';
 
 /**
  *
@@ -11,8 +11,6 @@ import {} from 'node';
  * @template T
  */
 export default class Tuex<T extends { [key: string]: any }> {
-  private store: T = null;
-
   private vue: VueConstructor;
 
   private eventPool: { [key: string]: ((store: T, key: keyof T, ...args) => any)[] } = {
@@ -23,7 +21,7 @@ export default class Tuex<T extends { [key: string]: any }> {
     global: []
   }
 
-	private storeEvent(type: Type, store: T, key: keyof T, ...args) {
+	private storeEvent(type: EventType, store: T, key: keyof T, ...args) {
 		this.eventPool[type].forEach(callback => callback(store, key, ...args));
 	}
 
@@ -35,12 +33,18 @@ export default class Tuex<T extends { [key: string]: any }> {
    */
   constructor(
     target: T | (new () => T) | (() => T),
-    plugins?: Plugin<T>[],
+    options: {
+      strict?: boolean,
+      plugins?: ((this: Tuex<T>) => any)[],
+    }
   ) {
-    this.replaceStore(target);
+    const { strict, plugins } = options;
 
+    this.replaceStore(target, strict || false);
     plugins && plugins.forEach(plugin => plugin.apply(this));
   }
+
+  public store: T = null;
 
   /**
    *
@@ -50,7 +54,7 @@ export default class Tuex<T extends { [key: string]: any }> {
    * @returns a funciton to unsubscribe from event
    * @memberof Tuex
    */
-  public subscribe(type: Type, callback: (store: T, key: keyof T) => any) {
+  public subscribe(type: EventType, callback: (store: T, key: keyof T, ...args) => any) {
     this.eventPool[type].push(callback);
     return () => {
       this.eventPool[type] = [...this.eventPool[type].filter(c => c != callback)];
@@ -65,12 +69,13 @@ export default class Tuex<T extends { [key: string]: any }> {
    * @param {(T | (new () => T) | (() => T))} target
    * @memberof Tuex
    */
-  public replaceStore(target: T | (new () => T) | (() => T)) {
+  public replaceStore(target: T | (new () => T) | (() => T), makeImmutable: boolean = false) {
     let plain: T;
 
     if (isFunction(target)) {
       try {
         plain = new (target as new () => T)();
+        this.store = this.objectToStore(plain, (target as new () => T), makeImmutable);
       } catch (e) {
         plain = (target as () => T)();
       }
@@ -78,7 +83,7 @@ export default class Tuex<T extends { [key: string]: any }> {
       plain = target as T;
     }
 
-    this.store = this.objectToStore(plain);
+    this.store = this.objectToStore(plain, undefined, makeImmutable);
   }
 
   /** objectToStore
@@ -92,7 +97,7 @@ export default class Tuex<T extends { [key: string]: any }> {
    * @returns {T} - converted store
    * @memberof Tuex
    */
-  public objectToStore(plain: T, constructor?: new () => T): T {
+  public objectToStore(plain: T, constructor?: new () => T, immutableState: boolean = false): T {
     const $this = this;
 
     const obj: T = {} as T;
@@ -100,17 +105,22 @@ export default class Tuex<T extends { [key: string]: any }> {
       const define = (prop: PropertyDescriptor) => Object.defineProperty(obj, key, prop);
       const descriptor = desc(plain, key) || desc(constructor.prototype, key);
 
-      if (isFunction(plain[key]))
+      if (isFunction(plain[key])) {
         define({
           configurable: false,
           enumerable: false,
           writable: false,
           value: function() {
             $this.storeEvent.call($this, 'action', plain, key, ...[].concat(arguments));
-            return (<any>plain)[key].apply(plain, arguments);
+            return (<any>plain)[key].apply(obj, arguments);
           }
         });
-      else if (isValue(descriptor))
+      }
+      else if (isValue(descriptor)) {
+        const isKeyObject = isObject(plain[key]);
+        if (isKeyObject)
+          plain[key] = this.objectToStore(plain[key], undefined, immutableState);
+
         define({
           configurable: false,
           enumerable: true,
@@ -118,13 +128,18 @@ export default class Tuex<T extends { [key: string]: any }> {
             $this.storeEvent.call($this, 'value', plain, key);
             return plain[key];
           },
-          set: value => {
-            $this.storeEvent.call($this, 'value', plain, key, value);
+          set: !immutableState ? value => {
             $this.storeEvent.call($this, 'global', plain, key, value);
-            plain[key] = value;
+            $this.storeEvent.call($this, 'value', plain, key, value);
+            plain[key] = isKeyObject ? this.objectToStore(value, undefined, immutableState) : value;
+          } : () => {
+            if (process.env.NODE_ENV !== 'production') {
+              console.error('Explicit mutations of store values are prohibited!\nPlease, use setters instead or disable the [immutableState] flag!');
+            }
           }
         });
-      else if (isGetter(descriptor))
+      }
+      else if (isGetter(descriptor)) {
         define({
           configurable: false,
           enumerable: false,
@@ -133,18 +148,21 @@ export default class Tuex<T extends { [key: string]: any }> {
             return plain[key];
           }
         });
-      else if (isSetter(descriptor))
+      }
+      else if (isSetter(descriptor)) {
         define({
           configurable: false,
           enumerable: false,
           set: value => {
-            $this.storeEvent.call($this, 'setter', plain, key, value);
             $this.storeEvent.call($this, 'global', plain, key, value);
+            $this.storeEvent.call($this, 'setter', plain, key, value);
             plain[key] = value;
           }
         });
-      else if (process.env.NODE_ENV !== 'production')
+      }
+      else if (process.env.NODE_ENV !== 'production') {
         console.error('Descriptor of ' + key + ' is wrong');
+      }
     }
 
     return obj;

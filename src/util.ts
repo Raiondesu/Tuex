@@ -1,7 +1,7 @@
 export const desc = Object.getOwnPropertyDescriptor;
 
 export function isObject(obj) {
-  return !!obj && typeof obj === 'object';
+  return !!obj && Object.prototype.toString.apply(obj) === '[object Object]';
 }
 
 export function isFunction(fn) {

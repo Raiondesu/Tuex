@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.desc = Object.getOwnPropertyDescriptor;
 function isObject(obj) {
-    return !!obj && typeof obj === 'object';
+    return !!obj && Object.prototype.toString.apply(obj) === '[object Object]';
 }
 exports.isObject = isObject;
 function isFunction(fn) {

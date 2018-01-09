@@ -9,6 +9,8 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
     "emitDecoratorMetadata": true,
+    "declaration": true,
+    "declarationDir": "./types",
     "rootDir": "./src",
     "outDir": "./dist",
 		"lib": [
@@ -17,13 +19,15 @@
 			"dom"
 		],
 		"typeRoots": [
-			"@types/jest"
+      "@types/jest",
+      "@types/node",
+      "./types"
 		]
   },
   "exclude": [
-    "node_modules",
-    "dist",
-    "types",
+    "./node_modules",
+    "./dist",
+    "./types",
     "./tests"
   ]
 }

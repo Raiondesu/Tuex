@@ -14,9 +14,8 @@ var Tuex = /** @class */ (function () {
      * @param {Plugin<T>[]} plugins - optional plugins to install
      * @memberof Store
      */
-    function Tuex(target, plugins) {
+    function Tuex(target, options) {
         var _this = this;
-        this.store = null;
         this.eventPool = {
             value: [],
             getter: [],
@@ -24,7 +23,9 @@ var Tuex = /** @class */ (function () {
             action: [],
             global: []
         };
-        this.replaceStore(target);
+        this.store = null;
+        var strict = options.strict, plugins = options.plugins;
+        this.replaceStore(target, strict || false);
         plugins && plugins.forEach(function (plugin) { return plugin.apply(_this); });
     }
     Tuex.prototype.storeEvent = function (type, store, key) {
@@ -57,11 +58,13 @@ var Tuex = /** @class */ (function () {
      * @param {(T | (new () => T) | (() => T))} target
      * @memberof Tuex
      */
-    Tuex.prototype.replaceStore = function (target) {
+    Tuex.prototype.replaceStore = function (target, makeImmutable) {
+        if (makeImmutable === void 0) { makeImmutable = false; }
         var plain;
         if (util_1.isFunction(target)) {
             try {
                 plain = new target();
+                this.store = this.objectToStore(plain, target, makeImmutable);
             }
             catch (e) {
                 plain = target();
@@ -70,7 +73,7 @@ var Tuex = /** @class */ (function () {
         else {
             plain = target;
         }
-        this.store = this.objectToStore(plain);
+        this.store = this.objectToStore(plain, undefined, makeImmutable);
     };
     /** objectToStore
      *
@@ -83,24 +86,30 @@ var Tuex = /** @class */ (function () {
      * @returns {T} - converted store
      * @memberof Tuex
      */
-    Tuex.prototype.objectToStore = function (plain, constructor) {
+    Tuex.prototype.objectToStore = function (plain, constructor, immutableState) {
+        var _this = this;
+        if (immutableState === void 0) { immutableState = false; }
         var $this = this;
         var obj = {};
         var _loop_1 = function (key) {
             var define = function (prop) { return Object.defineProperty(obj, key, prop); };
             var descriptor = util_1.desc(plain, key) || util_1.desc(constructor.prototype, key);
-            if (util_1.isFunction(plain[key]))
+            if (util_1.isFunction(plain[key])) {
                 define({
                     configurable: false,
                     enumerable: false,
                     writable: false,
                     value: function () {
                         (_a = $this.storeEvent).call.apply(_a, [$this, 'action', plain, key].concat([].concat(arguments)));
-                        return plain[key].apply(plain, arguments);
+                        return plain[key].apply(obj, arguments);
                         var _a;
                     }
                 });
-            else if (util_1.isValue(descriptor))
+            }
+            else if (util_1.isValue(descriptor)) {
+                var isKeyObject_1 = util_1.isObject(plain[key]);
+                if (isKeyObject_1)
+                    plain[key] = this_1.objectToStore(plain[key], undefined, immutableState);
                 define({
                     configurable: false,
                     enumerable: true,
@@ -108,13 +117,18 @@ var Tuex = /** @class */ (function () {
                         $this.storeEvent.call($this, 'value', plain, key);
                         return plain[key];
                     },
-                    set: function (value) {
-                        $this.storeEvent.call($this, 'value', plain, key, value);
+                    set: !immutableState ? function (value) {
                         $this.storeEvent.call($this, 'global', plain, key, value);
-                        plain[key] = value;
+                        $this.storeEvent.call($this, 'value', plain, key, value);
+                        plain[key] = isKeyObject_1 ? _this.objectToStore(value, undefined, immutableState) : value;
+                    } : function () {
+                        if (process.env.NODE_ENV !== 'production') {
+                            console.error('Explicit mutations of store values are prohibited!\nPlease, use setters instead or disable the [immutableState] flag!');
+                        }
                     }
                 });
-            else if (util_1.isGetter(descriptor))
+            }
+            else if (util_1.isGetter(descriptor)) {
                 define({
                     configurable: false,
                     enumerable: false,
@@ -123,19 +137,23 @@ var Tuex = /** @class */ (function () {
                         return plain[key];
                     }
                 });
-            else if (util_1.isSetter(descriptor))
+            }
+            else if (util_1.isSetter(descriptor)) {
                 define({
                     configurable: false,
                     enumerable: false,
                     set: function (value) {
-                        $this.storeEvent.call($this, 'setter', plain, key, value);
                         $this.storeEvent.call($this, 'global', plain, key, value);
+                        $this.storeEvent.call($this, 'setter', plain, key, value);
                         plain[key] = value;
                     }
                 });
-            else if (process.env.NODE_ENV !== 'production')
+            }
+            else if (process.env.NODE_ENV !== 'production') {
                 console.error('Descriptor of ' + key + ' is wrong');
+            }
         };
+        var this_1 = this;
         for (var key in plain) {
             _loop_1(key);
         }
