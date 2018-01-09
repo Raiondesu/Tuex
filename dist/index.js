@@ -91,11 +91,12 @@ var Tuex = /** @class */ (function () {
             catch (e) {
                 plain = target();
             }
+            this.store = this.objectToStore(plain, target);
         }
         else {
             plain = target;
+            this.store = this.objectToStore(plain);
         }
-        this.store = this.objectToStore(plain, target);
         this._vue && (this._vue.prototype.$store = this.store);
         // Object.defineProperty(this, 'store', {
         //   configurable: false,
@@ -148,7 +149,7 @@ var Tuex = /** @class */ (function () {
             else if (isValue(descriptor)) {
                 var isKeyObject_1 = isObject(plain[key]);
                 if (isKeyObject_1)
-                    plain[key] = this_1.objectToStore(plain[key], undefined);
+                    plain[key] = this_1.objectToStore(plain[key]);
                 define({
                     configurable: false,
                     enumerable: true,
@@ -159,7 +160,7 @@ var Tuex = /** @class */ (function () {
                     set: !this_1._strict ? function (value) {
                         callStoreEvent('global', value);
                         callStoreEvent('value', value);
-                        plain[key] = isKeyObject_1 ? _this.objectToStore(value, undefined) : value;
+                        plain[key] = isKeyObject_1 ? _this.objectToStore(value) : value;
                     } : function () {
                         if (process.env.NODE_ENV !== 'production') {
                             console.error('Explicit mutations of store values are prohibited!\nPlease, use setters instead or disable the [immutableState] flag!');
