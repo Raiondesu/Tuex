@@ -1,4 +1,5 @@
 export const desc = Object.getOwnPropertyDescriptor;
+export const keysOf = Object.getOwnPropertyNames;
 
 export function isObject(obj) {
   return !!obj && Object.prototype.toString.apply(obj) === '[object Object]';

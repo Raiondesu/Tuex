@@ -1,4 +1,4 @@
-import { desc, isFunction, isValue, isGetter, isSetter, isObject } from "./util";
+import { desc, isFunction, isValue, isGetter, isSetter, isObject, keysOf } from "./util";
 import { VueConstructor } from "vue/types/vue";
 import {} from 'node';
 
@@ -11,9 +11,9 @@ export type EventType = 'value' | 'getter' | 'setter' | 'action' | 'global';
  * @template T
  */
 export default class Tuex<T extends { [key: string]: any }> {
-  private vue: VueConstructor;
+  private _vue: VueConstructor;
 
-  private eventPool: { [key: string]: ((store: T, key: keyof T, ...args) => any)[] } = {
+  private _eventPool: { [key: string]: ((store: T, key: keyof T, ...args) => any)[] } = {
     value: [],
     getter: [],
     setter: [],
@@ -21,26 +21,33 @@ export default class Tuex<T extends { [key: string]: any }> {
     global: []
   }
 
-	private storeEvent(type: EventType, store: T, key: keyof T, ...args) {
-		this.eventPool[type].forEach(callback => callback(store, key, ...args));
-	}
+	private _storeEvent(type: EventType, store: T, key: keyof T, ...args) {
+		this._eventPool[type].forEach(callback => callback(store, key, ...args));
+  }
+
+  private _strict: boolean = false;
 
   /**
    * Creates an instance of Tuex.
-   * @param {((new () => T) | (() => T) | T)} target - can be a plain object, function that returns an object or a constructor function (class)
-   * @param {Plugin<T>[]} plugins - optional plugins to install
-   * @memberof Store
+   * @param {(T | (new () => T) | (() => T))} target - can be a plain object, function that returns an object or a constructor function (class)
+   * @param {{
+   *       strict?: boolean, // - whether to disallow state modifications
+   *       plugins?: ((this: Tuex<T>) => any)[], // - optional plugins to install
+   *     }} options
+   * @memberof Tuex
    */
   constructor(
     target: T | (new () => T) | (() => T),
-    options: {
+    options?: {
       strict?: boolean,
       plugins?: ((this: Tuex<T>) => any)[],
     }
   ) {
-    const { strict, plugins } = options;
+    const { strict, plugins } = options || { strict: false, plugins: [] };
 
-    this.replaceStore(target, strict || false);
+    this._strict = strict;
+
+    this.replaceStore(target);
     plugins && plugins.forEach(plugin => plugin.apply(this));
   }
 
@@ -55,9 +62,9 @@ export default class Tuex<T extends { [key: string]: any }> {
    * @memberof Tuex
    */
   public subscribe(type: EventType, callback: (store: T, key: keyof T, ...args) => any) {
-    this.eventPool[type].push(callback);
+    this._eventPool[type].push(callback);
     return () => {
-      this.eventPool[type] = [...this.eventPool[type].filter(c => c != callback)];
+      this._eventPool[type] = [...this._eventPool[type].filter(c => c != callback)];
     }
   }
 
@@ -69,13 +76,12 @@ export default class Tuex<T extends { [key: string]: any }> {
    * @param {(T | (new () => T) | (() => T))} target
    * @memberof Tuex
    */
-  public replaceStore(target: T | (new () => T) | (() => T), makeImmutable: boolean = false) {
+  public replaceStore(target: T | (new () => T) | (() => T)) {
     let plain: T;
 
     if (isFunction(target)) {
       try {
         plain = new (target as new () => T)();
-        this.store = this.objectToStore(plain, (target as new () => T), makeImmutable);
       } catch (e) {
         plain = (target as () => T)();
       }
@@ -83,25 +89,39 @@ export default class Tuex<T extends { [key: string]: any }> {
       plain = target as T;
     }
 
-    this.store = this.objectToStore(plain, undefined, makeImmutable);
+    this.store = this.objectToStore(plain, (target as new () => T));
+    this._vue && (this._vue.prototype.$store = this.store);
+
+    // Object.defineProperty(this, 'store', {
+    //   configurable: false,
+    //   enumerable: true,
+    //   get: () => plain,
+    //   set: () => {
+    //     if (process.env.NODE_ENV !== 'production') {
+    //       console.error('Explicit assignment of store is prohibited!\nPlease, use replaceStore instead!');
+    //     }
+    //   }
+    // })
   }
 
   /** objectToStore
    *
    * Converts a plain js object into a valid Tuex-store
    *
-   * TODO: make recursive for object values
-   *
    * @param {T} plain - object to convert
    * @param {new () => T} [constructor] - constructor (if any)
    * @returns {T} - converted store
    * @memberof Tuex
    */
-  public objectToStore(plain: T, constructor?: new () => T, immutableState: boolean = false): T {
+  public objectToStore(plain: T, constructor?: new () => T): T {
     const $this = this;
-
     const obj: T = {} as T;
-    for (let key in plain) {
+    const keys = [].concat(keysOf(plain));
+
+    if (isFunction(constructor))
+      keys.push(...keysOf(constructor.prototype));
+
+    for (let key of keys) {
       const define = (prop: PropertyDescriptor) => Object.defineProperty(obj, key, prop);
       const descriptor = desc(plain, key) || desc(constructor.prototype, key);
 
@@ -111,7 +131,7 @@ export default class Tuex<T extends { [key: string]: any }> {
           enumerable: false,
           writable: false,
           value: function() {
-            $this.storeEvent.call($this, 'action', plain, key, ...[].concat(arguments));
+            $this._storeEvent.call($this, 'action', plain, key, ...[].concat(arguments));
             return (<any>plain)[key].apply(obj, arguments);
           }
         });
@@ -119,19 +139,19 @@ export default class Tuex<T extends { [key: string]: any }> {
       else if (isValue(descriptor)) {
         const isKeyObject = isObject(plain[key]);
         if (isKeyObject)
-          plain[key] = this.objectToStore(plain[key], undefined, immutableState);
+          plain[key] = this.objectToStore(plain[key], undefined);
 
         define({
           configurable: false,
           enumerable: true,
           get: () => {
-            $this.storeEvent.call($this, 'value', plain, key);
+            $this._storeEvent.call($this, 'value', plain, key);
             return plain[key];
           },
-          set: !immutableState ? value => {
-            $this.storeEvent.call($this, 'global', plain, key, value);
-            $this.storeEvent.call($this, 'value', plain, key, value);
-            plain[key] = isKeyObject ? this.objectToStore(value, undefined, immutableState) : value;
+          set: !$this._strict ? value => {
+            $this._storeEvent.call($this, 'global', plain, key, value);
+            $this._storeEvent.call($this, 'value', plain, key, value);
+            plain[key] = isKeyObject ? this.objectToStore(value, undefined) : value;
           } : () => {
             if (process.env.NODE_ENV !== 'production') {
               console.error('Explicit mutations of store values are prohibited!\nPlease, use setters instead or disable the [immutableState] flag!');
@@ -144,7 +164,7 @@ export default class Tuex<T extends { [key: string]: any }> {
           configurable: false,
           enumerable: false,
           get: () => {
-            $this.storeEvent.call($this, 'getter', plain, key);
+            $this._storeEvent.call($this, 'getter', plain, key);
             return plain[key];
           }
         });
@@ -154,14 +174,14 @@ export default class Tuex<T extends { [key: string]: any }> {
           configurable: false,
           enumerable: false,
           set: value => {
-            $this.storeEvent.call($this, 'global', plain, key, value);
-            $this.storeEvent.call($this, 'setter', plain, key, value);
+            $this._storeEvent.call($this, 'global', plain, key, value);
+            $this._storeEvent.call($this, 'setter', plain, key, value);
             plain[key] = value;
           }
         });
       }
       else if (process.env.NODE_ENV !== 'production') {
-        console.error('Descriptor of ' + key + ' is wrong');
+        console.error('Descriptor of ' + key + ' is wrong!');
       }
     }
 
@@ -169,7 +189,7 @@ export default class Tuex<T extends { [key: string]: any }> {
   }
 
   public install(Vue: VueConstructor) {
-    if (this.vue && Vue === this.vue) {
+    if (this._vue && Vue === this._vue) {
       if (process.env.NODE_ENV !== 'production') {
         console.error(
           '[tuex] is already installed. Vue.use(new Tuex(...)) should be called only once.'
@@ -177,7 +197,7 @@ export default class Tuex<T extends { [key: string]: any }> {
       }
       return;
     }
-    this.vue = Vue;
-    this.vue.prototype.$store = this.store;
+    this._vue = Vue;
+    this._vue.prototype.$store = this.store;
   }
 }

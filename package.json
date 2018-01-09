@@ -9,7 +9,7 @@
     "retest": "npm run build && npm test",
     "preversion": "npm run retest",
     "update": "npm version patch && npm publish",
-    "build": "tsc"
+    "build": "tsc && uglifyjs ./dist/index.js -c toplevel,sequences=false -m reserved=['objectToStore','exports'] --toplevel -o ./dist/index.min.js"
   },
   "keywords": [
     "Vue",

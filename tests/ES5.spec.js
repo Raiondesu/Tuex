@@ -2,16 +2,18 @@ test('Works as class', () => {
 	var Vue = require('vue/dist/vue');
 	var Tuex = require('../dist').default;
 
-	var Test = new Tuex({
-		test: 'ads',
+	var Test = new Tuex(class {
+    constructor() {
+		  this.test = 'ads';
+    }
 
 		get otherTest() {
 			return 'wow';
-    },
+    }
 
     set x(value) {
       this.test = value;
-    },
+    }
 
 		wow(amount, appendix) {
       expect(amount).toBe(2);

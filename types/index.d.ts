@@ -9,16 +9,20 @@ export declare type EventType = 'value' | 'getter' | 'setter' | 'action' | 'glob
 export default class Tuex<T extends {
     [key: string]: any;
 }> {
-    private vue;
-    private eventPool;
-    private storeEvent(type, store, key, ...args);
+    private _vue;
+    private _eventPool;
+    private _storeEvent(type, store, key, ...args);
+    private _strict;
     /**
      * Creates an instance of Tuex.
-     * @param {((new () => T) | (() => T) | T)} target - can be a plain object, function that returns an object or a constructor function (class)
-     * @param {Plugin<T>[]} plugins - optional plugins to install
-     * @memberof Store
+     * @param {(T | (new () => T) | (() => T))} target - can be a plain object, function that returns an object or a constructor function (class)
+     * @param {{
+     *       strict?: boolean, // - whether to disallow state modifications
+     *       plugins?: ((this: Tuex<T>) => any)[], // - optional plugins to install
+     *     }} options
+     * @memberof Tuex
      */
-    constructor(target: T | (new () => T) | (() => T), options: {
+    constructor(target: T | (new () => T) | (() => T), options?: {
         strict?: boolean;
         plugins?: ((this: Tuex<T>) => any)[];
     });
@@ -40,18 +44,16 @@ export default class Tuex<T extends {
      * @param {(T | (new () => T) | (() => T))} target
      * @memberof Tuex
      */
-    replaceStore(target: T | (new () => T) | (() => T), makeImmutable?: boolean): void;
+    replaceStore(target: T | (new () => T) | (() => T)): void;
     /** objectToStore
      *
      * Converts a plain js object into a valid Tuex-store
-     *
-     * TODO: make recursive for object values
      *
      * @param {T} plain - object to convert
      * @param {new () => T} [constructor] - constructor (if any)
      * @returns {T} - converted store
      * @memberof Tuex
      */
-    objectToStore(plain: T, constructor?: new () => T, immutableState?: boolean): T;
+    objectToStore(plain: T, constructor?: new () => T): T;
     install(Vue: VueConstructor): void;
 }

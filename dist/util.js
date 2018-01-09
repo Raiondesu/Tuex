@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.desc = Object.getOwnPropertyDescriptor;
+exports.keysOf = Object.getOwnPropertyNames;
 function isObject(obj) {
     return !!obj && Object.prototype.toString.apply(obj) === '[object Object]';
 }
