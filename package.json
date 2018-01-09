@@ -9,6 +9,7 @@
     "retest": "npm run build && npm test",
     "preversion": "npm run retest",
     "update": "npm version patch && npm publish",
+    "minor": "npm version minor && npm publish",
     "build": "tsc && uglifyjs ./dist/index.js -c toplevel,sequences=false -m reserved=['objectToStore','exports'] --toplevel -o ./dist/index.min.js"
   },
   "keywords": [
