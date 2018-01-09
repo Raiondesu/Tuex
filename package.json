@@ -10,6 +10,7 @@
     "preversion": "npm run retest",
     "patch": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
+    "major": "npm version major && npm publish",
     "build": "tsc && uglifyjs ./dist/index.js -c toplevel,sequences=false -m reserved=['Tuex','exports'] --toplevel -o ./dist/index.min.js",
     "esmbuild": "tsc --p ./tsconfig.esm.json && uglifyjs ./dist.esm/index.js -c toplevel,sequences=false -m reserved=['Tuex','exports'] --toplevel -o ./dist.esm/index.min.js"
   },
