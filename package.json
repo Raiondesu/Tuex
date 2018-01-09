@@ -1,6 +1,6 @@
 {
   "name": "tuex",
-  "version": "0.0.13",
+  "version": "0.1.0",
   "description": "A mostly reasonable replacement for Vuex",
   "repository": "Raiondesu/Tuex",
   "main": "dist/index.js",
