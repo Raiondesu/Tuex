@@ -112,11 +112,12 @@ export default class Tuex<T extends { [key: string]: any }> {
       } catch (e) {
         plain = (target as () => T)();
       }
+      this.store = this.objectToStore(plain, (target as new () => T));
     } else {
       plain = target as T;
+      this.store = this.objectToStore(plain);
     }
 
-    this.store = this.objectToStore(plain, (target as new () => T));
     this._vue && (this._vue.prototype.$store = this.store);
 
     // Object.defineProperty(this, 'store', {
@@ -167,7 +168,7 @@ export default class Tuex<T extends { [key: string]: any }> {
       else if (isValue(descriptor)) {
         const isKeyObject = isObject(plain[key]);
         if (isKeyObject)
-          plain[key] = this.objectToStore(plain[key], undefined);
+          plain[key] = this.objectToStore(plain[key]);
 
         define({
           configurable: false,
@@ -179,7 +180,7 @@ export default class Tuex<T extends { [key: string]: any }> {
           set: !this._strict ? value => {
             callStoreEvent('global', value);
             callStoreEvent('value', value);
-            plain[key] = isKeyObject ? this.objectToStore(value, undefined) : value;
+            plain[key] = isKeyObject ? this.objectToStore(value) : value;
           } : () => {
             if (process.env.NODE_ENV !== 'production') {
               console.error('Explicit mutations of store values are prohibited!\nPlease, use setters instead or disable the [immutableState] flag!');

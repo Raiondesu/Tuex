@@ -10,7 +10,7 @@
     "preversion": "npm run retest",
     "update": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
-    "build": "tsc && uglifyjs ./dist/index.js -c toplevel,sequences=false -m reserved=['objectToStore','exports'] --toplevel -o ./dist/index.min.js"
+    "build": "tsc && uglifyjs ./dist/index.js -c toplevel,sequences=false -m reserved=['Tuex','exports'] --toplevel -o ./dist/index.min.js"
   },
   "keywords": [
     "Vue",
@@ -34,6 +34,7 @@
     "ts-jest": "^22.0.1",
     "ts-node": "3.1.0",
     "typescript": "^2.6.2",
+    "uglify-js": "^3.3.5",
     "vue": "^2.5.13"
   }
 }
