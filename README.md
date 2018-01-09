@@ -7,7 +7,7 @@ A more precise Vuex alternative written in TypeScript.
 ## Install
 
 ```bash
-npm i -D tuex
+npm i -S tuex
 ```
 
 ## Usage example
