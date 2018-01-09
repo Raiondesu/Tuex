@@ -1,8 +1,5 @@
 var tsc = require('typescript');
 var fs = require('fs');
-var uglifyjs = require('uglify-js');
-var uglifyes = require('uglify-es');
-
 var version = process.env.VERSION || require('../package.json').version;
 
 var banner = `/**
@@ -13,41 +10,80 @@ var banner = `/**
 
 `;
 
-var tsFile = fs.readFileSync('./src/index.ts');
-// fs.writeFileSync('./src/index.ts', banner + tsFile.toString(), { encoding: 'UTF-8' });
+var uglify = {
+  cjs: require('uglify-js'),
+  esm: require('uglify-es')
+};
 
-var jsFile = tsc.transpile((banner + tsFile.toString()).replace('export default', 'export ='), require('../tsconfig.json'));
-var esFile = tsc.transpile(banner + tsFile.toString(), require('../tsconfig.esm.json'));
-
-fs.rmdirRSync = function rmdirRSync(path) {
-  if (fs.existsSync(path)) {
-    fs.readdirSync(path).forEach(function(file, index){
-      var curPath = path + "/" + file;
-      if (fs.lstatSync(curPath).isDirectory()) { // recurse
-        rmdirRSync(curPath);
-      } else { // delete file
-        fs.unlinkSync(curPath);
-      }
-    });
-    fs.rmdirSync(path);
+var config = {
+  esm: {
+    target: 'esnext',
+    module: 'esnext',
+    outDir: './esm',
+    lib: [
+      'es6',
+      'es2015',
+      'dom'
+    ]
+  },
+  cjs: {
+    target: 'es5',
+    module: 'commonjs',
+    outDir: './cjs',
+    lib: [
+      'es5',
+      'es2015',
+      'dom'
+    ]
   }
 };
 
-fs.rmdirRSync('./esm');
-fs.rmdirRSync('./cjs');
-fs.mkdirSync('./esm');
-fs.mkdirSync('./cjs');
-fs.writeFileSync('./cjs/index.js', jsFile, { encoding: 'UTF-8' });
-fs.writeFileSync('./esm/index.js', esFile, { encoding: 'UTF-8' });
+var tsconfig = {
+  moduleResolution: 'node',
+  alwaysStrict: true,
+  allowSyntheticDefaultImports: true,
+  experimentalDecorators: true,
+  noUnusedParameters: true,
+  emitDecoratorMetadata: true,
+  declaration: true,
+  declarationDir: './types',
+  rootDir: './src',
+  typeRoots: [
+    '@types/jest',
+    '@types/node',
+    './types'
+  ]
+}
 
-// jsFile = uglifyjs.Compressor(jsFile);
-// jsFile.mangle_names();
-jsFile = uglifyjs.minify(jsFile).code;
+var tsFile = fs.readFileSync('./src/index.ts');
 
-fs.writeFileSync('./cjs/index.min.js', jsFile, { encoding: 'UTF-8' });
+['cjs', 'esm'].forEach(type => {
+  var file = banner + tsFile.toString();
 
-// tsFile = uglifyes.Compressor(tsFile);
-// tsFile.mangle_names();
-tsFile = uglifyes.minify(esFile).code;
+  if (type === 'cjs')
+    file = file.replace('export default', 'export =');
 
-fs.writeFileSync('./esm/index.min.js', tsFile, { encoding: 'UTF-8' });
+  file = tsc.transpile(file, Object.assign({}, config[type], tsconfig));
+
+  function rmRdirSync(path) {
+    if (fs.existsSync(path)) {
+      fs.readdirSync(path).forEach(function(file, index){
+        var curPath = path + "/" + file;
+        if (fs.lstatSync(curPath).isDirectory()) { // recurse
+          rmRdirSync(curPath);
+        } else { // delete file
+          fs.unlinkSync(curPath);
+        }
+      });
+      fs.rmdirSync(path);
+    }
+  };
+
+  rmRdirSync('./' + type);
+  fs.mkdirSync('./' + type);
+  fs.writeFileSync('./' + type + '/index.js', file, { encoding: 'UTF-8' });
+
+  file = uglify[type].minify(file).code;
+
+  fs.writeFileSync('./' + type + '/index.min.js', file, { encoding: 'UTF-8' });
+});
