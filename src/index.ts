@@ -1,8 +1,35 @@
-import { desc, isFunction, isValue, isGetter, isSetter, isObject, keysOf } from "./util";
+// import { desc, isFunction, isValue, isGetter, isSetter, isObject, keysOf } from "./util";
 import { VueConstructor } from "vue/types/vue";
 import {} from 'node';
 
 export type EventType = 'value' | 'getter' | 'setter' | 'action' | 'global';
+
+const desc = Object.getOwnPropertyDescriptor;
+const keysOf = Object.getOwnPropertyNames;
+
+function isObject(obj) {
+  return !!obj && Object.prototype.toString.apply(obj) === '[object Object]';
+}
+
+function isFunction(fn) {
+  return !!fn && (fn instanceof Function || typeof fn === 'function');
+}
+
+// function isPromise(value) {
+//   return !!value && isFunction(value.then);
+// }
+
+function isValue(descriptor: PropertyDescriptor) {
+  return !!descriptor && !isFunction(descriptor.value) && !descriptor.get && !descriptor.set;
+}
+
+function isGetter(descriptor: PropertyDescriptor) {
+  return !!descriptor && descriptor.get && !descriptor.set;
+}
+
+function isSetter(descriptor: PropertyDescriptor) {
+  return !!descriptor && !descriptor.get && descriptor.set;
+}
 
 /**
  *
@@ -114,7 +141,6 @@ export default class Tuex<T extends { [key: string]: any }> {
    * @memberof Tuex
    */
   public objectToStore(plain: T, constructor?: new () => T): T {
-    const $this = this;
     const obj: T = {} as T;
     const keys = [].concat(keysOf(plain));
 
@@ -125,13 +151,15 @@ export default class Tuex<T extends { [key: string]: any }> {
       const define = (prop: PropertyDescriptor) => Object.defineProperty(obj, key, prop);
       const descriptor = desc(plain, key) || desc(constructor.prototype, key);
 
+      const callStoreEvent = (type: EventType, ...args) => this._storeEvent.call(this, type, plain, key, ...args);
+
       if (isFunction(plain[key])) {
         define({
           configurable: false,
           enumerable: false,
           writable: false,
           value: function() {
-            $this._storeEvent.call($this, 'action', plain, key, ...[].concat(arguments));
+            callStoreEvent('action', ...[].concat(arguments));
             return (<any>plain)[key].apply(obj, arguments);
           }
         });
@@ -145,12 +173,12 @@ export default class Tuex<T extends { [key: string]: any }> {
           configurable: false,
           enumerable: true,
           get: () => {
-            $this._storeEvent.call($this, 'value', plain, key);
+            callStoreEvent('value');
             return plain[key];
           },
-          set: !$this._strict ? value => {
-            $this._storeEvent.call($this, 'global', plain, key, value);
-            $this._storeEvent.call($this, 'value', plain, key, value);
+          set: !this._strict ? value => {
+            callStoreEvent('global', value);
+            callStoreEvent('value', value);
             plain[key] = isKeyObject ? this.objectToStore(value, undefined) : value;
           } : () => {
             if (process.env.NODE_ENV !== 'production') {
@@ -164,7 +192,7 @@ export default class Tuex<T extends { [key: string]: any }> {
           configurable: false,
           enumerable: false,
           get: () => {
-            $this._storeEvent.call($this, 'getter', plain, key);
+            callStoreEvent('getter');
             return plain[key];
           }
         });
@@ -174,8 +202,8 @@ export default class Tuex<T extends { [key: string]: any }> {
           configurable: false,
           enumerable: false,
           set: value => {
-            $this._storeEvent.call($this, 'global', plain, key, value);
-            $this._storeEvent.call($this, 'setter', plain, key, value);
+            callStoreEvent('global', value);
+            callStoreEvent('setter', value);
             plain[key] = value;
           }
         });

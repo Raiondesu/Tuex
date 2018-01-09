@@ -1,6 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var util_1 = require("./util");
+var desc = Object.getOwnPropertyDescriptor;
+var keysOf = Object.getOwnPropertyNames;
+function isObject(obj) {
+    return !!obj && Object.prototype.toString.apply(obj) === '[object Object]';
+}
+function isFunction(fn) {
+    return !!fn && (fn instanceof Function || typeof fn === 'function');
+}
+// function isPromise(value) {
+//   return !!value && isFunction(value.then);
+// }
+function isValue(descriptor) {
+    return !!descriptor && !isFunction(descriptor.value) && !descriptor.get && !descriptor.set;
+}
+function isGetter(descriptor) {
+    return !!descriptor && descriptor.get && !descriptor.set;
+}
+function isSetter(descriptor) {
+    return !!descriptor && !descriptor.get && descriptor.set;
+}
 /**
  *
  *
@@ -65,7 +84,7 @@ var Tuex = /** @class */ (function () {
      */
     Tuex.prototype.replaceStore = function (target) {
         var plain;
-        if (util_1.isFunction(target)) {
+        if (isFunction(target)) {
             try {
                 plain = new target();
             }
@@ -100,40 +119,46 @@ var Tuex = /** @class */ (function () {
      */
     Tuex.prototype.objectToStore = function (plain, constructor) {
         var _this = this;
-        var $this = this;
         var obj = {};
-        var keys = [].concat(util_1.keysOf(plain));
-        if (util_1.isFunction(constructor))
-            keys.push.apply(keys, util_1.keysOf(constructor.prototype));
+        var keys = [].concat(keysOf(plain));
+        if (isFunction(constructor))
+            keys.push.apply(keys, keysOf(constructor.prototype));
         var _loop_1 = function (key) {
             var define = function (prop) { return Object.defineProperty(obj, key, prop); };
-            var descriptor = util_1.desc(plain, key) || util_1.desc(constructor.prototype, key);
-            if (util_1.isFunction(plain[key])) {
+            var descriptor = desc(plain, key) || desc(constructor.prototype, key);
+            var callStoreEvent = function (type) {
+                var args = [];
+                for (var _i = 1; _i < arguments.length; _i++) {
+                    args[_i - 1] = arguments[_i];
+                }
+                return (_a = _this._storeEvent).call.apply(_a, [_this, type, plain, key].concat(args));
+                var _a;
+            };
+            if (isFunction(plain[key])) {
                 define({
                     configurable: false,
                     enumerable: false,
                     writable: false,
                     value: function () {
-                        (_a = $this._storeEvent).call.apply(_a, [$this, 'action', plain, key].concat([].concat(arguments)));
+                        callStoreEvent.apply(void 0, ['action'].concat([].concat(arguments)));
                         return plain[key].apply(obj, arguments);
-                        var _a;
                     }
                 });
             }
-            else if (util_1.isValue(descriptor)) {
-                var isKeyObject_1 = util_1.isObject(plain[key]);
+            else if (isValue(descriptor)) {
+                var isKeyObject_1 = isObject(plain[key]);
                 if (isKeyObject_1)
                     plain[key] = this_1.objectToStore(plain[key], undefined);
                 define({
                     configurable: false,
                     enumerable: true,
                     get: function () {
-                        $this._storeEvent.call($this, 'value', plain, key);
+                        callStoreEvent('value');
                         return plain[key];
                     },
-                    set: !$this._strict ? function (value) {
-                        $this._storeEvent.call($this, 'global', plain, key, value);
-                        $this._storeEvent.call($this, 'value', plain, key, value);
+                    set: !this_1._strict ? function (value) {
+                        callStoreEvent('global', value);
+                        callStoreEvent('value', value);
                         plain[key] = isKeyObject_1 ? _this.objectToStore(value, undefined) : value;
                     } : function () {
                         if (process.env.NODE_ENV !== 'production') {
@@ -142,23 +167,23 @@ var Tuex = /** @class */ (function () {
                     }
                 });
             }
-            else if (util_1.isGetter(descriptor)) {
+            else if (isGetter(descriptor)) {
                 define({
                     configurable: false,
                     enumerable: false,
                     get: function () {
-                        $this._storeEvent.call($this, 'getter', plain, key);
+                        callStoreEvent('getter');
                         return plain[key];
                     }
                 });
             }
-            else if (util_1.isSetter(descriptor)) {
+            else if (isSetter(descriptor)) {
                 define({
                     configurable: false,
                     enumerable: false,
                     set: function (value) {
-                        $this._storeEvent.call($this, 'global', plain, key, value);
-                        $this._storeEvent.call($this, 'setter', plain, key, value);
+                        callStoreEvent('global', value);
+                        callStoreEvent('setter', value);
                         plain[key] = value;
                     }
                 });
