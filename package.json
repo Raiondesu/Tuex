@@ -3,16 +3,16 @@
   "version": "0.2.1",
   "description": "A mostly reasonable alternative to Vuex",
   "repository": "Raiondesu/Tuex",
-  "main": "dist/index.js",
+  "main": "cjs/index.js",
+  "esnext": "esm/index.js",
   "scripts": {
     "test": "jest",
-    "retest": "npm run build && npm run esmbuild && npm test",
+    "retest": "npm run build && npm test",
     "preversion": "npm run retest",
     "patch": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
     "major": "npm version major && npm publish",
-    "build": "tsc && uglifyjs ./dist/index.js -c toplevel,sequences=false -m reserved=['Tuex','exports'] --toplevel -o ./dist/index.min.js",
-    "esmbuild": "tsc --p ./tsconfig.esm.json && uglifyjs ./dist.esm/index.js -c toplevel,sequences=false -m reserved=['Tuex','exports'] --toplevel -o ./dist.esm/index.min.js"
+    "build": "node ./build"
   },
   "keywords": [
     "Vue",

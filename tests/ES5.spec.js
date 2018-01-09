@@ -1,6 +1,6 @@
 test('Works as class', () => {
 	var Vue = require('vue/dist/vue');
-	var Tuex = require('../dist').default;
+	var Tuex = require('../cjs');
 
 	var Test = new Tuex(class {
     constructor() {

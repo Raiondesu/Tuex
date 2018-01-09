@@ -1,8 +1,6 @@
-// import { desc, isFunction, isValue, isGetter, isSetter, isObject, keysOf } from "./util";
-import { VueConstructor } from "vue/types/vue";
 import {} from 'node';
 
-export type EventType = 'value' | 'getter' | 'setter' | 'action' | 'global';
+type EventType = 'value' | 'getter' | 'setter' | 'action' | 'global';
 
 const desc = Object.getOwnPropertyDescriptor;
 const keysOf = Object.getOwnPropertyNames;
@@ -32,13 +30,13 @@ function isSetter(descriptor: PropertyDescriptor) {
 }
 
 /**
- *
+ * Tuex
  *
  * @class Tuex
  * @template T
  */
 export default class Tuex<T extends { [key: string]: any }> {
-  private _vue: VueConstructor;
+  private _vue;
 
   private _eventPool: { [key: string]: ((store: T, key: keyof T, ...args) => any)[] } = {
     value: [],
@@ -217,7 +215,7 @@ export default class Tuex<T extends { [key: string]: any }> {
     return obj;
   }
 
-  public install(Vue: VueConstructor) {
+  private install(Vue) {
     if (this._vue && Vue === this._vue) {
       if (process.env.NODE_ENV !== 'production') {
         console.error(

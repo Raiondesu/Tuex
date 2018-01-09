@@ -1,20 +1,18 @@
 {
 	"compilerOptions": {
-		"target": "es2015",
+		"target": "esnext",
 		"moduleResolution": "node",
-		"module": "es2015",
+		"module": "esnext",
 		"alwaysStrict": true,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
-		"noUnusedLocals": true,
 		"noUnusedParameters": true,
     "emitDecoratorMetadata": true,
     "declaration": true,
     "declarationDir": "./types",
     "rootDir": "./src",
-    "outDir": "./dist.esm",
+    "outDir": "./esm",
 		"lib": [
-			"es5",
 			"es6",
       "es2015",
       "dom"
