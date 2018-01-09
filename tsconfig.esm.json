@@ -1,0 +1,34 @@
+{
+	"compilerOptions": {
+		"target": "es2015",
+		"moduleResolution": "node",
+		"module": "es2015",
+		"alwaysStrict": true,
+		"allowSyntheticDefaultImports": true,
+		"experimentalDecorators": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+    "emitDecoratorMetadata": true,
+    "declaration": true,
+    "declarationDir": "./types",
+    "rootDir": "./src",
+    "outDir": "./dist.esm",
+		"lib": [
+			"es5",
+			"es6",
+      "es2015",
+      "dom"
+		],
+		"typeRoots": [
+      "@types/jest",
+      "@types/node",
+      "./types"
+		]
+  },
+  "exclude": [
+    "./node_modules",
+    "./dist",
+    "./types",
+    "./tests"
+  ]
+}

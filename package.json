@@ -6,11 +6,12 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest",
-    "retest": "npm run build && npm test",
+    "retest": "npm run build && npm run esmbuild && npm test",
     "preversion": "npm run retest",
     "update": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
-    "build": "tsc && uglifyjs ./dist/index.js -c toplevel,sequences=false -m reserved=['Tuex','exports'] --toplevel -o ./dist/index.min.js"
+    "build": "tsc && uglifyjs ./dist/index.js -c toplevel,sequences=false -m reserved=['Tuex','exports'] --toplevel -o ./dist/index.min.js",
+    "esmbuild": "tsc --p ./tsconfig.esm.json && uglifyjs ./dist.esm/index.js -c toplevel,sequences=false -m reserved=['Tuex','exports'] --toplevel -o ./dist.esm/index.min.js"
   },
   "keywords": [
     "Vue",
@@ -34,6 +35,7 @@
     "ts-jest": "^22.0.1",
     "ts-node": "3.1.0",
     "typescript": "^2.6.2",
+    "uglify-es": "^3.3.5",
     "uglify-js": "^3.3.5",
     "vue": "^2.5.13"
   }

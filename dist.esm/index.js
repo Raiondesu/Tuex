@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var desc = Object.getOwnPropertyDescriptor;
-var keysOf = Object.getOwnPropertyNames;
+const desc = Object.getOwnPropertyDescriptor;
+const keysOf = Object.getOwnPropertyNames;
 function isObject(obj) {
     return !!obj && Object.prototype.toString.apply(obj) === '[object Object]';
 }
@@ -26,7 +24,7 @@ function isSetter(descriptor) {
  * @class Tuex
  * @template T
  */
-var Tuex = /** @class */ (function () {
+export default class Tuex {
     /**
      * Creates an instance of Tuex.
      * @param {(T | (new () => T) | (() => T))} target - can be a plain object, function that returns an object or a constructor function (class)
@@ -36,8 +34,7 @@ var Tuex = /** @class */ (function () {
      *     }} options
      * @memberof Tuex
      */
-    function Tuex(target, options) {
-        var _this = this;
+    constructor(target, options) {
         this._eventPool = {
             value: [],
             getter: [],
@@ -47,18 +44,14 @@ var Tuex = /** @class */ (function () {
         };
         this._strict = false;
         this.store = null;
-        var _a = options || { strict: false, plugins: [] }, strict = _a.strict, plugins = _a.plugins;
+        const { strict, plugins } = options || { strict: false, plugins: [] };
         this._strict = strict;
         this.replaceStore(target);
-        plugins && plugins.forEach(function (plugin) { return plugin.apply(_this); });
+        plugins && plugins.forEach(plugin => plugin.apply(this));
     }
-    Tuex.prototype._storeEvent = function (type, store, key) {
-        var args = [];
-        for (var _i = 3; _i < arguments.length; _i++) {
-            args[_i - 3] = arguments[_i];
-        }
-        this._eventPool[type].forEach(function (callback) { return callback.apply(void 0, [store, key].concat(args)); });
-    };
+    _storeEvent(type, store, key, ...args) {
+        this._eventPool[type].forEach(callback => callback(store, key, ...args));
+    }
     /**
      *
      *
@@ -67,13 +60,12 @@ var Tuex = /** @class */ (function () {
      * @returns a funciton to unsubscribe from event
      * @memberof Tuex
      */
-    Tuex.prototype.subscribe = function (type, callback) {
-        var _this = this;
+    subscribe(type, callback) {
         this._eventPool[type].push(callback);
-        return function () {
-            _this._eventPool[type] = _this._eventPool[type].filter(function (c) { return c != callback; }).slice();
+        return () => {
+            this._eventPool[type] = [...this._eventPool[type].filter(c => c != callback)];
         };
-    };
+    }
     /** replaceStore
      *
      * A function that replaces the current store with the other one,
@@ -82,8 +74,8 @@ var Tuex = /** @class */ (function () {
      * @param {(T | (new () => T) | (() => T))} target
      * @memberof Tuex
      */
-    Tuex.prototype.replaceStore = function (target) {
-        var plain;
+    replaceStore(target) {
+        let plain;
         if (isFunction(target)) {
             try {
                 plain = new target();
@@ -108,7 +100,7 @@ var Tuex = /** @class */ (function () {
         //     }
         //   }
         // })
-    };
+    }
     /** objectToStore
      *
      * Converts a plain js object into a valid Tuex-store
@@ -118,50 +110,42 @@ var Tuex = /** @class */ (function () {
      * @returns {T} - converted store
      * @memberof Tuex
      */
-    Tuex.prototype.objectToStore = function (plain, constructor) {
-        var _this = this;
-        var obj = {};
-        var keys = [].concat(keysOf(plain));
+    objectToStore(plain, constructor) {
+        const obj = {};
+        const keys = [].concat(keysOf(plain));
         if (isFunction(constructor))
-            keys.push.apply(keys, keysOf(constructor.prototype));
-        var _loop_1 = function (key) {
-            var define = function (prop) { return Object.defineProperty(obj, key, prop); };
-            var descriptor = desc(plain, key) || desc(constructor.prototype, key);
-            var callStoreEvent = function (type) {
-                var args = [];
-                for (var _i = 1; _i < arguments.length; _i++) {
-                    args[_i - 1] = arguments[_i];
-                }
-                return (_a = _this._storeEvent).call.apply(_a, [_this, type, plain, key].concat(args));
-                var _a;
-            };
+            keys.push(...keysOf(constructor.prototype));
+        for (let key of keys) {
+            const define = (prop) => Object.defineProperty(obj, key, prop);
+            const descriptor = desc(plain, key) || desc(constructor.prototype, key);
+            const callStoreEvent = (type, ...args) => this._storeEvent.call(this, type, plain, key, ...args);
             if (isFunction(plain[key])) {
                 define({
                     configurable: false,
                     enumerable: false,
                     writable: false,
                     value: function () {
-                        callStoreEvent.apply(void 0, ['action'].concat([].concat(arguments)));
+                        callStoreEvent('action', ...[].concat(arguments));
                         return plain[key].apply(obj, arguments);
                     }
                 });
             }
             else if (isValue(descriptor)) {
-                var isKeyObject_1 = isObject(plain[key]);
-                if (isKeyObject_1)
-                    plain[key] = this_1.objectToStore(plain[key]);
+                const isKeyObject = isObject(plain[key]);
+                if (isKeyObject)
+                    plain[key] = this.objectToStore(plain[key]);
                 define({
                     configurable: false,
                     enumerable: true,
-                    get: function () {
+                    get: () => {
                         callStoreEvent('value');
                         return plain[key];
                     },
-                    set: !this_1._strict ? function (value) {
+                    set: !this._strict ? value => {
                         callStoreEvent('global', value);
                         callStoreEvent('value', value);
-                        plain[key] = isKeyObject_1 ? _this.objectToStore(value) : value;
-                    } : function () {
+                        plain[key] = isKeyObject ? this.objectToStore(value) : value;
+                    } : () => {
                         if (process.env.NODE_ENV !== 'production') {
                             console.error('Explicit mutations of store values are prohibited!\nPlease, use setters instead or disable the [strict] flag!');
                         }
@@ -172,7 +156,7 @@ var Tuex = /** @class */ (function () {
                 define({
                     configurable: false,
                     enumerable: false,
-                    get: function () {
+                    get: () => {
                         callStoreEvent('getter');
                         return plain[key];
                     }
@@ -182,7 +166,7 @@ var Tuex = /** @class */ (function () {
                 define({
                     configurable: false,
                     enumerable: false,
-                    set: function (value) {
+                    set: value => {
                         callStoreEvent('global', value);
                         callStoreEvent('setter', value);
                         plain[key] = value;
@@ -192,15 +176,10 @@ var Tuex = /** @class */ (function () {
             else if (process.env.NODE_ENV !== 'production') {
                 console.error('Descriptor of ' + key + ' is wrong!');
             }
-        };
-        var this_1 = this;
-        for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
-            var key = keys_1[_i];
-            _loop_1(key);
         }
         return obj;
-    };
-    Tuex.prototype.install = function (Vue) {
+    }
+    install(Vue) {
         if (this._vue && Vue === this._vue) {
             if (process.env.NODE_ENV !== 'production') {
                 console.error('[tuex] is already installed. Vue.use(new Tuex(...)) should be called only once.');
@@ -209,7 +188,5 @@ var Tuex = /** @class */ (function () {
         }
         this._vue = Vue;
         this._vue.prototype.$store = this.store;
-    };
-    return Tuex;
-}());
-exports.default = Tuex;
+    }
+}

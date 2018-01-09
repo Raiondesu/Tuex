@@ -159,7 +159,7 @@ export default class Tuex<T extends { [key: string]: any }> {
           configurable: false,
           enumerable: false,
           writable: false,
-          value: function() {
+          value: function () {
             callStoreEvent('action', ...[].concat(arguments));
             return (<any>plain)[key].apply(obj, arguments);
           }
@@ -183,7 +183,7 @@ export default class Tuex<T extends { [key: string]: any }> {
             plain[key] = isKeyObject ? this.objectToStore(value) : value;
           } : () => {
             if (process.env.NODE_ENV !== 'production') {
-              console.error('Explicit mutations of store values are prohibited!\nPlease, use setters instead or disable the [immutableState] flag!');
+              console.error('Explicit mutations of store values are prohibited!\nPlease, use setters instead or disable the [strict] flag!');
             }
           }
         });
