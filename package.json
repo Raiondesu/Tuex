@@ -5,6 +5,8 @@
   "repository": "Raiondesu/Tuex",
   "main": "cjs/index.js",
   "esnext": "esm/index.js",
+  "module": "esm/index.js",
+  "typings": "types/index.d.ts",
   "scripts": {
     "test": "jest",
     "retest": "npm run build && npm test",

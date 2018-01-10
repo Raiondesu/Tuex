@@ -1,33 +1,28 @@
-declare const _default: {
-    new <T extends {
-        [key: string]: any;
-    }>(target: T | (new () => T) | (() => T), options?: {
-        strict?: boolean;
-        plugins?: ((this: {
-            _vue: any;
-            _eventPool: {
-                [key: string]: ((store: T, key: keyof T, ...args: any[]) => any)[];
-            };
-            _storeEvent(type: "value" | "getter" | "setter" | "action" | "global", store: T, key: keyof T, ...args: any[]): void;
-            _strict: boolean;
-            store: T;
-            subscribe(type: "value" | "getter" | "setter" | "action" | "global", callback: (store: T, key: keyof T, ...args: any[]) => any): () => void;
-            replaceStore(target: T | (new () => T) | (() => T)): void;
-            objectToStore(plain: T, constructor?: new () => T): T;
-            install(Vue: any): void;
-        }) => any)[];
-    }): {
-        _vue: any;
-        _eventPool: {
-            [key: string]: ((store: T, key: keyof T, ...args: any[]) => any)[];
-        };
-        _storeEvent(type: "value" | "getter" | "setter" | "action" | "global", store: T, key: keyof T, ...args: any[]): void;
-        _strict: boolean;
-        store: T;
-        subscribe(type: "value" | "getter" | "setter" | "action" | "global", callback: (store: T, key: keyof T, ...args: any[]) => any): () => void;
-        replaceStore(target: T | (new () => T) | (() => T)): void;
-        objectToStore(plain: T, constructor?: new () => T): T;
-        install(Vue: any): void;
-    };
-};
-export = _default;
+export type EventType = 'value' | 'getter' | 'setter' | 'action' | 'global';
+
+export declare class Tuex<T extends { [key: string]: any }> {
+  private _vue;
+  private __store: { state: T }
+  private _strict: boolean = false;
+  private _setVueProtoStore(store: T);
+	private _storeEvent(type: EventType, store: T, key: keyof T, ...args);
+  private _eventPool: { [key: string]: ((store: T, key: keyof T, ...args) => any)[] };
+
+  private install(Vue);
+
+  constructor(
+    target: T | (new () => T) | (() => T),
+    options?: {
+      strict?: boolean,
+      plugins?: ((this: Tuex<T>) => any)[],
+    }
+  );
+
+  public get store(): T;
+  public set store(value: T);
+
+  public subscribe(type: EventType, callback: (store: T, key: keyof T, ...args) => any);
+  public replaceStore(target: T | (new () => T) | (() => T));
+  public objectToStore(plain: T, constructor?: new () => T): T;
+}
+
