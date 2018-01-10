@@ -10,31 +10,32 @@ var banner = `/**
 
 `;
 
-var uglify = {
-  cjs: require('uglify-js'),
-  esm: require('uglify-es')
-};
-
 var config = {
   esm: {
-    target: 'esnext',
-    module: 'esnext',
-    outDir: './esm',
-    lib: [
-      'es6',
-      'es2015',
-      'dom'
-    ]
+    uglify: require('uglify-es'),
+    tsconfig: {
+      target: 'esnext',
+      module: 'esnext',
+      outDir: './esm',
+      lib: [
+        'es6',
+        'es2015',
+        'dom'
+      ]
+    }
   },
   cjs: {
-    target: 'es5',
-    module: 'commonjs',
-    outDir: './cjs',
-    lib: [
-      'es5',
-      'es2015',
-      'dom'
-    ]
+    uglify: require('uglify-js'),
+    tsconfig: {
+      target: 'es5',
+      module: 'commonjs',
+      outDir: './cjs',
+      lib: [
+        'es5',
+        'es2015',
+        'dom'
+      ]
+    }
   }
 };
 
@@ -58,32 +59,28 @@ var tsconfig = {
 var tsFile = fs.readFileSync('./src/index.ts');
 
 ['cjs', 'esm'].forEach(type => {
+  var path = './' + type;
   var file = banner + tsFile.toString();
 
   if (type === 'cjs')
     file = file.replace('export default', 'export =');
 
-  file = tsc.transpile(file, Object.assign({}, config[type], tsconfig));
+  file = tsc.transpile(file, Object.assign({}, config[type].tsconfig, tsconfig));
 
-  function rmRdirSync(path) {
-    if (fs.existsSync(path)) {
-      fs.readdirSync(path).forEach(function(file, index){
-        var curPath = path + "/" + file;
+  (function rmRdirSync(_path) {
+    if (fs.existsSync(_path)) {
+      fs.readdirSync(_path).forEach(function(file, index){
+        var curPath = _path + "/" + file;
         if (fs.lstatSync(curPath).isDirectory()) { // recurse
           rmRdirSync(curPath);
         } else { // delete file
           fs.unlinkSync(curPath);
         }
       });
-      fs.rmdirSync(path);
+      fs.rmdirSync(_path);
     }
-  };
-
-  rmRdirSync('./' + type);
-  fs.mkdirSync('./' + type);
-  fs.writeFileSync('./' + type + '/index.js', file, { encoding: 'UTF-8' });
-
-  file = uglify[type].minify(file).code;
-
-  fs.writeFileSync('./' + type + '/index.min.js', file, { encoding: 'UTF-8' });
+  }(path));
+  fs.mkdirSync(path);
+  fs.writeFileSync(path + '/index.js', file, { encoding: 'UTF-8' });
+  fs.writeFileSync(path + '/index.min.js', config[type].uglify.minify(file).code, { encoding: 'UTF-8' });
 });
