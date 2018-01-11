@@ -32,7 +32,10 @@ https://unpkg.com/tuex
     foo: 'bar'
   });
 
-  console.log(foo);
+  var vm = new Vue();
+
+  console.log(vm.$store.foo);
+  // => bar
 </script>
 ```
 
@@ -73,6 +76,7 @@ const TuexStore = new Tuex.Store({
     });
   }
 ])
+...
 ```
 
 ```js
