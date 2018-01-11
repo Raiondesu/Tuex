@@ -1,5 +1,5 @@
-describe('Tuex works with', function (){
-  test('construction from class', () => {
+describe('Tuex', () => {
+  test('is constructed from class', () => {
     var Vue = require('vue/dist/vue');
     var Tuex = require('../cjs');
 
@@ -57,7 +57,7 @@ describe('Tuex works with', function (){
     expect(vm.$store.test).toBe('new value of test');
   });
 
-  test('replacing store', () => {
+  test('is replacing store', () => {
     var Vue = require('vue/dist/vue');
     var Tuex = require('../cjs');
 
@@ -89,9 +89,9 @@ describe('Tuex works with', function (){
     }, {
       plugins: [
         function () {
-          this.store = 'asd'
+          this.store = 'asd'; // Console error: can't assign directly to store
+
           this.subscribe('setter', (state, key, value) => {
-            console.log(this);
             this.replaceStore({
               x: 'some value',
               get y() {
@@ -109,5 +109,61 @@ describe('Tuex works with', function (){
 
     expect(vm.$store.x).toBe('some value');
     expect(vm.$store.y).toBe(vm.$store.x + ' of y');
+  });
+
+  test('internall interactions are resolved correclty', () => {
+    var Vue = require('vue/dist/vue');
+    var Tuex = require('../cjs');
+
+    Vue.use(Tuex);
+
+    var Test = new Tuex.Store(class {
+      constructor() {
+        this.value = 0;
+      }
+
+      get Value() {
+        return this.value;
+      }
+
+      set Value(value) {
+        this.value = value;
+      }
+
+      increment(amount) {
+        this.value += amount;
+      }
+    }, {
+      plugins: [
+        function () {
+          this.subscribe('action', (state, key, amount, arg1, arg2, arg3, arg4) => {
+            expect(key).toBe('increment');
+            expect(amount).toBe(2);
+            expect(arg1).toBe(4);
+            expect(arg2).toBe(6);
+            expect(arg3).toBe(8);
+            expect(arg4).toBe(undefined);
+          })
+          this.subscribe('value', (state, key, value) => {
+            if (value && key === 'value') {
+              expect(value).toBe(2);
+            } else if (value && key === 'Value') {
+              expect(value).toBe(-1);
+            }
+          })
+        }
+      ]
+    });
+
+    var vm = new Vue();
+
+    expect(vm.$store.value).toBe(0);
+    expect(vm.$store.Value).toBe(vm.$store.value);
+
+    // Additional arguments for args-passing checks
+    vm.$store.increment(2, 4, 6, 8);
+    expect(vm.$store.Value).toBe(2);
+
+    vm.$store.Value = -1;
   });
 })

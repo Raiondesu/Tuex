@@ -14,7 +14,10 @@ export const isPromise = (value) => {
 }
 
 export const isValue = (descriptor: PropertyDescriptor) => {
-  return !!descriptor && !isFunction(descriptor.value) && !descriptor.get && !descriptor.set;
+  return !!descriptor && (
+    (!isFunction(descriptor.value) && !descriptor.get && !descriptor.set)
+    || (!descriptor.value && descriptor.get && descriptor.set)
+  );
 }
 
 export const isGetter = (descriptor: PropertyDescriptor) => {

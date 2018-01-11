@@ -49,11 +49,11 @@ export class Store<T extends { [key: string]: any }> {
 
 
     const pluginOptions = {
-      replaceStore: (target) => {
-        return this.replaceStore(target);
+      replaceStore: (_target) => {
+        return this.replaceStore(_target);
       },
-      subscribe: (...args) => {
-        return this.subscribe(...args);
+      subscribe: (type: EventType, callback: (store: T, key: keyof T, ...args) => any) => {
+        return this.subscribe(type, callback);
       },
     };
 
@@ -138,9 +138,9 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
       const callStoreEvent = (type: EventType, ...args) => this._storeEvent.call(this, type, plain, key, ...args);
 
       if (isFunction(plain[key])) define({
-        value() {
-          callStoreEvent('action', ...[].concat(arguments));
-          return (<any>plain)[key].apply(obj, arguments);
+        value(...args) {
+          callStoreEvent('action', ...args);
+          return (<any>plain)[key].apply(obj, args);
         }
       });
       else if (isValue(descriptor)) {

@@ -1,13 +1,14 @@
 {
   "name": "tuex",
   "version": "0.3.4",
-  "description": "A mostly reasonable alternative to Vuex",
+  "description": "A simple and mostly reasonable alternative to Vuex",
   "repository": "Raiondesu/Tuex",
   "bugs": {
     "email": "a.raiondesu@gmail.com",
     "url": "https://github.com/Raiondesu/Tuex/issues"
   },
   "main": "cjs/index.js",
+  "unpkg": "cjs/index.min.js",
   "esnext": "esm/index.js",
   "module": "esm/index.js",
   "typings": "types/index.d.ts",
