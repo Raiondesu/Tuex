@@ -16,7 +16,7 @@
     "test": "jest",
     "retest": "npm run build && npm test",
     "preversion": "npm run retest",
-    "prepublish": "npm run build",
+    "postversion": "npm run build",
     "patch": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
     "major": "npm version major && npm publish",
