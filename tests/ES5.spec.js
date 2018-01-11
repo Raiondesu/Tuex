@@ -89,7 +89,9 @@ describe('Tuex works with', function (){
     }, {
       plugins: [
         function () {
+          this.store = 'asd'
           this.subscribe('setter', (state, key, value) => {
+            console.log(this);
             this.replaceStore({
               x: 'some value',
               get y() {

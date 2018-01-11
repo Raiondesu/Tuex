@@ -8,9 +8,6 @@ export declare type EventType = 'value' | 'getter' | 'setter' | 'action' | 'glob
 export declare class Store<T extends {
     [key: string]: any;
 }> {
-    private _eventPool;
-    private _storeEvent(type, store, key, ...args);
-    private _strict;
     /**
      * Creates an instance of Store.
      * @param {(T | (new () => T) | (() => T))} target - can be a plain object, function that returns an object or a constructor function (class)
