@@ -11,7 +11,7 @@ It takes heavy inspiration from the Redux/Vuex pattern, but has some crucial dif
 The main goal of Tuex is to make state-management less complex for small-scale apps, while keeping the flexibility and scalability of Vuex. It proves useful for middle-scaled or growing apps, when the `global event bus` starts to feel restricting.
 
 ### ES versions
-Tuex is written in typescript, but is also distributed for es5, es6 & esnext.
+Tuex is written in typescript, but is also distributed for  commonjs es5, browser es5, es6 & esnext.
 
 ## Installation & Usage
 
