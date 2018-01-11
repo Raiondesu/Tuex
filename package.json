@@ -1,6 +1,6 @@
 {
   "name": "tuex",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "A mostly reasonable alternative to Vuex",
   "repository": "Raiondesu/Tuex",
   "main": "cjs/index.js",
