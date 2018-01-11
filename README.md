@@ -1,6 +1,6 @@
 # Tuex
 
-A more precise Vuex alternative written in TypeScript.
+A more simple Vuex alternative written in TypeScript.
 
 ## [![Travis branch](https://img.shields.io/travis/Raiondesu/Tuex/master.svg?style=flat-square)](https://travis-ci.org/Raiondesu/Tuex) ![size](https://badges.herokuapp.com/size/npm/tuex@latest/cjs/index.min.js?style=flat-square) ![size](https://badges.herokuapp.com/size/npm/tuex@latest/cjs/index.min.js?style=flat-square&gzip=true) [![David](https://img.shields.io/david/raiondesu/tuex.svg?style=flat-square)]() [![David](https://img.shields.io/david/dev/raiondesu/tuex.svg?style=flat-square)]() [![npm](https://img.shields.io/npm/dt/tuex.svg?style=flat-square)](http://npmjs.com/package/tuex)
 
@@ -10,6 +10,7 @@ A more precise Vuex alternative written in TypeScript.
 npm i -S tuex
 ```
 
+
 ## Usage example
 
 ```js
@@ -18,7 +19,9 @@ npm i -S tuex
 import Vue from 'vue'
 import Tuex from 'tuex'
 
-const TuexStore = new Tuex({
+Vue.use(Tuex);
+
+const TuexStore = new Tuex.Store({
   test: 'ads',
 
   get otherTest() {

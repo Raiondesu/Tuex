@@ -2,22 +2,20 @@
 	"compilerOptions": {
     "noEmit": true,
 		"target": "es5",
+		"lib": [
+			"es5",
+			"es2015",
+			"dom"
+		],
+    "outDir": "./cjs",
 		"moduleResolution": "node",
-		"module": "commonjs",
+		"module": "es2015",
 		"alwaysStrict": true,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
 		"noUnusedParameters": true,
     "emitDecoratorMetadata": true,
-    "declaration": true,
-    "declarationDir": "./types",
     "rootDir": "./src",
-    "outDir": "./cjs",
-		"lib": [
-			"es5",
-			"es2015.promise",
-			"dom"
-		],
 		"typeRoots": [
       "@types/jest",
       "@types/node",

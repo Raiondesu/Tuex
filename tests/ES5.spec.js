@@ -3,7 +3,9 @@ describe('Tuex works with', function (){
     var Vue = require('vue/dist/vue');
     var Tuex = require('../cjs');
 
-    var Test = new Tuex(class {
+    Vue.use(Tuex);
+
+    var Test = new Tuex.Store(class {
       constructor() {
         this.test = 'ads';
       }
@@ -40,8 +42,6 @@ describe('Tuex works with', function (){
       ]
     });
 
-    Vue.use(Test);
-
     var vm = new Vue();
     expect(vm.$store).toBeTruthy();
     expect(vm.$store.test).toBe('ads');
@@ -61,7 +61,9 @@ describe('Tuex works with', function (){
     var Vue = require('vue/dist/vue');
     var Tuex = require('../cjs');
 
-    var Test = new Tuex(class {
+    Vue.use(Tuex);
+
+    var Test = new Tuex.Store(class {
       constructor() {
         this.test = 'ads';
       }
@@ -98,8 +100,6 @@ describe('Tuex works with', function (){
         }
       ]
     });
-
-    Vue.use(Test);
 
     var vm = new Vue();
 
