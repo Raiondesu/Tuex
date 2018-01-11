@@ -33,7 +33,13 @@ export default config.concat(
     typescript(c.tsconfig)
   ].concat(c.uglify ? [
     uglify({
-      mangle: true
+      mangle: true,
+      compress: {
+        toplevel: true
+      },
+      output: {
+        comments: 'some'
+      }
     }, c.uglify)
   ] : [])
 }));
