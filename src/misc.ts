@@ -29,7 +29,7 @@ export const isSetter = (descriptor: PropertyDescriptor) => {
 }
 
 export const error = (message: string) => {
-  if (process.env.NODE_ENV !== 'production') {
+  if (process && process.env.NODE_ENV !== 'production') {
     console.error(message);
   }
 }
