@@ -1,4 +1,4 @@
-var config = require('./config');
+var config = require('./rollup');
 var uglify = require('rollup-plugin-uglify');
 var typescript = require('rollup-plugin-typescript');
 var version = process.env.VERSION || require('../package.json').version;
