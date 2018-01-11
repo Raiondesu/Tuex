@@ -1,6 +1,6 @@
 var config = require('./rollup');
 var uglify = require('rollup-plugin-uglify');
-var typescript = require('rollup-plugin-typescript');
+var typescript = require('rollup-plugin-ts').default;
 var version = process.env.VERSION || require('../package.json').version;
 
 var banner = `/**
@@ -30,7 +30,10 @@ export default config.concat(
   },
 
   plugins: [
-    typescript(c.tsconfig)
+    typescript({
+      tsconfig: c.tsconfig,
+      typescript: require('typescript')
+    })
   ].concat(c.uglify ? [
     uglify({
       mangle: true,

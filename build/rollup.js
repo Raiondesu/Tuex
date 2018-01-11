@@ -11,6 +11,7 @@ module.exports = [
       ...require('./tsconfig'),
       target: 'es5',
       outDir: './cjs',
+      module: 'commonjs',
       lib: [
         'es5',
         'es2015',
@@ -30,6 +31,7 @@ module.exports = [
       ...require('./tsconfig'),
       target: 'esnext',
       outDir: './esm',
+      module: 'es2015',
       lib: [
         'es5',
         'es6',

@@ -1,6 +1,5 @@
 module.exports = {
   moduleResolution: 'node',
-  module: 'es2015',
   alwaysStrict: true,
   allowSyntheticDefaultImports: true,
   experimentalDecorators: true,
@@ -12,5 +11,4 @@ module.exports = {
     '@types/node',
     './types'
   ],
-  typescript: require('typescript')
 };
