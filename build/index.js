@@ -19,7 +19,7 @@ export default config.concat(
     if (_c.output.format !== 'umd')
       _c.uglify = require('uglify-' + _c.output.format.replace('c', '')).minify;
     else
-      _c.uglify = require('uglify-js');
+      _c.uglify = require('uglify-js').minify;
     return _c;
   })
 ).map(c => ({
