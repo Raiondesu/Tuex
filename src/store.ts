@@ -90,17 +90,6 @@ export class Store<T extends { [key: string]: any }> {
     }
 
     _vue && (_vue.prototype.$store = this.store);
-
-    // Object.defineProperty(this, 'store', {
-    //   configurable: false,
-    //   enumerable: true,
-    //   get: () => plain,
-    //   set: () => {
-    //     if (process.env.NODE_ENV !== 'production') {
-    //       console.error('Explicit assignment of store is prohibited!\nPlease, use replaceStore instead!');
-    //     }
-    //   }
-    // })
   }
 
   /** objectToStore
