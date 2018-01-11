@@ -2,8 +2,7 @@ language: node_js
 node_js:
   - "7"
 before_install:
-  - 'if [ "${TRAVIS_NODE_VERSION}" = "0.6" ]; then npm install -g npm@5.5.1 ; elif [ "${TRAVIS_NODE_VERSION}" != "0.9" ]; then case "$(npm --version)" in 1.*) npm install -g npm@5.5.1 ;; 2.*) npm install -g npm@5.5.1 ;; esac ; fi'
-  - 'if [ "${TRAVIS_NODE_VERSION%${TRAVIS_NODE_VERSION#[0-9]}}" = "0" ] || [ "${TRAVIS_NODE_VERSION:0:4}" = "iojs" ]; then npm install -g npm@5.5.1 ; elif [ "${TRAVIS_NODE_VERSION}" != "0.6" ] && [ "${TRAVIS_NODE_VERSION}" != "0.9" ]; then npm install -g npm; fi'
+  - 'npm install -g npm@5.5.1'
 install: npm i
 script: npm run build && npm test
 cache:
