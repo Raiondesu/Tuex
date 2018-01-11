@@ -49,10 +49,20 @@ export class Store<T extends { [key: string]: any }> {
     plugins && plugins.forEach(plugin => plugin.apply(this));
   }
 
-  public store: T = null;
+  private _store: T = null;
+
+  public get store(): T {
+    return this._store;
+  }
+
+  public set store(value) {
+    error(`Can't assign ${value} to store:
+Explicit store assignment is wrong! Consider using [replaceStore] instead!`);
+  }
 
   /**
-   *
+   * Subscribe for store events.
+   * Callback is executed BEFORE the event!
    *
    * @param {'value' | 'getter' | 'setter' | 'action' | 'global'} type
    * @param {(store: T, key: keyof T) => any} callback
@@ -83,10 +93,10 @@ export class Store<T extends { [key: string]: any }> {
       } catch (e) {
         plain = (target as () => T)();
       }
-      this.store = this.objectToStore(plain, (target as new () => T));
+      this._store = this.objectToStore(plain, (target as new () => T));
     } else {
       plain = target as T;
-      this.store = this.objectToStore(plain);
+      this._store = this.objectToStore(plain);
     }
 
     _vue && (_vue.prototype.$store = this.store);
@@ -114,14 +124,12 @@ export class Store<T extends { [key: string]: any }> {
 
       const callStoreEvent = (type: EventType, ...args) => this._storeEvent.call(this, type, plain, key, ...args);
 
-      if (isFunction(plain[key])) {
-        define({
-          value() {
-            callStoreEvent('action', ...[].concat(arguments));
-            return (<any>plain)[key].apply(obj, arguments);
-          }
-        });
-      }
+      if (isFunction(plain[key])) define({
+        value() {
+          callStoreEvent('action', ...[].concat(arguments));
+          return (<any>plain)[key].apply(obj, arguments);
+        }
+      });
       else if (isValue(descriptor)) {
         const isKeyObject = isObject(plain[key]);
         if (isKeyObject)
@@ -142,26 +150,20 @@ export class Store<T extends { [key: string]: any }> {
           )
         });
       }
-      else if (isGetter(descriptor)) {
-        define({
-          get: () => {
-            callStoreEvent('getter');
-            return plain[key];
-          }
-        });
-      }
-      else if (isSetter(descriptor)) {
-        define({
-          set: value => {
-            callStoreEvent('global', value);
-            callStoreEvent('setter', value);
-            plain[key] = value;
-          }
-        });
-      }
-      else if (process.env.NODE_ENV !== 'production') {
-        console.error('Descriptor of ' + key + ' is wrong!');
-      }
+      else if (isGetter(descriptor)) define({
+        get: () => {
+          callStoreEvent('getter');
+          return plain[key];
+        }
+      });
+      else if (isSetter(descriptor)) define({
+        set: value => {
+          callStoreEvent('global', value);
+          callStoreEvent('setter', value);
+          plain[key] = value;
+        }
+      });
+      else error('Descriptor of ' + key + ' is wrong!');
     }
 
     return obj;
@@ -170,11 +172,7 @@ export class Store<T extends { [key: string]: any }> {
 
 export function install(Vue) {
   if (_vue && Vue === _vue) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.error(
-        '[tuex] is already installed. Vue.use(new Tuex(...)) should be called only once.'
-      )
-    }
+    error('[tuex] is already installed. Vue.use(Tuex) should be called only once.')
     return;
   }
   _vue = Vue;
