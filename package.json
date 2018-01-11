@@ -1,6 +1,6 @@
 {
   "name": "tuex",
-  "version": "0.3.3",
+  "version": "0.3.2",
   "description": "A mostly reasonable alternative to Vuex",
   "repository": "Raiondesu/Tuex",
   "bugs": {
@@ -15,9 +15,10 @@
     "test": "jest",
     "retest": "npm run build && npm test",
     "preversion": "npm run retest",
-    "patch": "npm version patch && npm run build && npm publish",
-    "minor": "npm version minor && npm run build && npm publish",
-    "major": "npm version major && npm run build && npm publish",
+    "prepublish": "npm run build",
+    "patch": "npm version patch && npm publish",
+    "minor": "npm version minor && npm publish",
+    "major": "npm version major && npm publish",
     "build": "rollup -c ./build/index.js"
   },
   "keywords": [

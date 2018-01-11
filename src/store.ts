@@ -4,6 +4,22 @@ export type EventType = 'value' | 'getter' | 'setter' | 'action' | 'global';
 
 let _vue;
 
+let _strict: boolean = false;
+
+let _store = null;
+
+const _eventPool: { [key: string]: ((store, key, ...args) => any)[] } = {
+  value: [],
+  getter: [],
+  setter: [],
+  action: [],
+  global: []
+}
+
+function _storeEvent(type: EventType, store, key, ...args) {
+  _eventPool[type].forEach(callback => callback(store, key, ...args));
+}
+
 /**
  * Store
  *
@@ -11,20 +27,6 @@ let _vue;
  * @template T
  */
 export class Store<T extends { [key: string]: any }> {
-  private _eventPool: { [key: string]: ((store: T, key: keyof T, ...args) => any)[] } = {
-    value: [],
-    getter: [],
-    setter: [],
-    action: [],
-    global: []
-  }
-
-  private _storeEvent(type: EventType, store: T, key: keyof T, ...args) {
-    this._eventPool[type].forEach(callback => callback(store, key, ...args));
-  }
-
-  private _strict: boolean = false;
-
   /**
    * Creates an instance of Store.
    * @param {(T | (new () => T) | (() => T))} target - can be a plain object, function that returns an object or a constructor function (class)
@@ -43,16 +45,14 @@ export class Store<T extends { [key: string]: any }> {
   ) {
     const { strict, plugins } = options || { strict: false, plugins: [] };
 
-    this._strict = strict;
+    _strict = strict;
 
     this.replaceStore(target);
     plugins && plugins.forEach(plugin => plugin.apply(this));
   }
 
-  private _store: T = null;
-
   public get store(): T {
-    return this._store;
+    return _store;
   }
 
   public set store(value) {
@@ -70,9 +70,9 @@ Explicit store assignment is wrong! Consider using [replaceStore] instead!`);
    * @memberof Tuex
    */
   public subscribe(type: EventType, callback: (store: T, key: keyof T, ...args) => any) {
-    this._eventPool[type].push(callback);
+    _eventPool[type].push(callback);
     return () => {
-      this._eventPool[type] = [...this._eventPool[type].filter(c => c != callback)];
+      _eventPool[type] = [..._eventPool[type].filter(c => c != callback)];
     }
   }
 
@@ -93,10 +93,10 @@ Explicit store assignment is wrong! Consider using [replaceStore] instead!`);
       } catch (e) {
         plain = (target as () => T)();
       }
-      this._store = this.objectToStore(plain, (target as new () => T));
+      _store = this.objectToStore(plain, (target as new () => T));
     } else {
       plain = target as T;
-      this._store = this.objectToStore(plain);
+      _store = this.objectToStore(plain);
     }
 
     _vue && (_vue.prototype.$store = this.store);
@@ -122,7 +122,7 @@ Explicit store assignment is wrong! Consider using [replaceStore] instead!`);
       const define = (prop: PropertyDescriptor) => Object.defineProperty(obj, key, prop);
       const descriptor = desc(plain, key) || desc(constructor.prototype, key);
 
-      const callStoreEvent = (type: EventType, ...args) => this._storeEvent.call(this, type, plain, key, ...args);
+      const callStoreEvent = (type: EventType, ...args) => _storeEvent.call(this, type, plain, key, ...args);
 
       if (isFunction(plain[key])) define({
         value() {
@@ -141,7 +141,7 @@ Explicit store assignment is wrong! Consider using [replaceStore] instead!`);
             callStoreEvent('value');
             return plain[key];
           },
-          set: !this._strict ? value => {
+          set: !_strict ? value => {
             callStoreEvent('global', value);
             callStoreEvent('value', value);
             plain[key] = isKeyObject ? this.objectToStore(value) : value;
