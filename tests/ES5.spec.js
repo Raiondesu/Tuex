@@ -26,17 +26,15 @@ describe('Tuex', () => {
 
         wows += appendix;
 
-        console.log(wows);
+        return wows;
       }
     }, {
       plugins: [
         function () {
           this.subscribe('setter', function(state, key, value) {
             expect(key).toBe('x');
-            state[key] = 'ads';
-            expect(vm.$store.test).toBe('ads');
-
-            console.log(key + ' is being set with `' + value + '`');
+            state.x = 'ads';
+            expect(state.test).toBe('ads');
           })
         }
       ]
@@ -84,13 +82,11 @@ describe('Tuex', () => {
 
         wows += appendix;
 
-        console.log(wows);
+        return wows;
       }
     }, {
       plugins: [
         function () {
-          this.store = 'asd'; // Console error: can't assign directly to store
-
           this.subscribe('setter', (state, key, value) => {
             this.replaceStore({
               x: 'some value',
