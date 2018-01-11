@@ -18,6 +18,8 @@ export default config.concat(
     _c.output.file = _c.output.file.replace('.js', '.min.js');
     if (_c.output.format !== 'umd')
       _c.uglify = require('uglify-' + _c.output.format.replace('c', '')).minify;
+    else
+      _c.uglify = require('uglify-js');
     return _c;
   })
 ).map(c => ({
