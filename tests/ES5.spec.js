@@ -143,14 +143,14 @@ describe('Tuex', () => {
             expect(arg2).toBe(6);
             expect(arg3).toBe(8);
             expect(arg4).toBe(undefined);
-          })
+          });
           this.subscribe('value', (state, key, value) => {
             if (value && key === 'value') {
               expect(value).toBe(2);
             } else if (value && key === 'Value') {
               expect(value).toBe(-1);
             }
-          })
+          });
         }
       ]
     });
