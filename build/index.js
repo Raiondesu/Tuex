@@ -16,7 +16,8 @@ export default config.concat(
     var _c = { ...c };
     _c.output = { ..._c.output };
     _c.output.file = _c.output.file.replace('.js', '.min.js');
-    _c.uglify = require('uglify-' + _c.output.format.replace('c', '')).minify;
+    if (_c.output.format !== 'umd')
+      _c.uglify = require('uglify-' + _c.output.format.replace('c', '')).minify;
     return _c;
   })
 ).map(c => ({
@@ -26,8 +27,10 @@ export default config.concat(
   output: {
     ...c.output,
     exports: 'named',
+    name: 'Tuex',
     banner
   },
+
 
   plugins: [
     typescript({

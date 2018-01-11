@@ -15,12 +15,35 @@ Tuex is written in typescript, but is also distributed for es5, es6 & esnext.
 
 ## Installation & Usage
 
+### [CDN](https://unpkg.com/tuex)
+
+```url
+https://unpkg.com/tuex
+```
+
+```html
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/tuex"></script>
+
+<script>
+  Vue.use(Tuex);
+
+  var store = new Tuex.Store({
+    foo: 'bar'
+  });
+
+  console.log(foo);
+</script>
+```
+
+### Node environment (webpack, browserify, etc.)
+
 ```bash
 npm i -S tuex
 ```
 
 ```js
-// index.js/main.js/app.js (entry point)
+// App entry point
 
 import Vue from 'vue'
 import Tuex from 'tuex'

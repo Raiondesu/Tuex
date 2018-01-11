@@ -20,6 +20,26 @@ module.exports = [
     }
   },
   {
+    input: './src/index.ts',
+
+    output: {
+      file: './umd/index.js',
+      format: 'umd',
+    },
+
+    tsconfig: {
+      ...require('./tsconfig'),
+      target: 'es5',
+      outDir: './umd',
+      module: 'umd',
+      lib: [
+        'es5',
+        'es2015',
+        'dom'
+      ]
+    }
+  },
+  {
     input: './src/index.esm.ts',
 
     output: {
