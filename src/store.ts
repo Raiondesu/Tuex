@@ -204,5 +204,4 @@ export function install(Vue) {
     return;
   }
   _vue = Vue;
-  _vue.prototype.$store = this.store;
 }
