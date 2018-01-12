@@ -4,3 +4,4 @@ tests
 .gitignore
 .editorconfig
 .travis.yml
+*.png
