@@ -54,7 +54,6 @@ const TuexStore = new Tuex.Store({
 ...
 ```
 
-
 ## [Roadmap](https://github.com/Raiondesu/Tuex/wiki/Roadmap)
 
 Coming soon:

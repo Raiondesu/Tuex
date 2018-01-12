@@ -26,11 +26,11 @@ export const isValue = (descriptor: PropertyDescriptor) => {
 }
 
 export const isGetter = (descriptor: PropertyDescriptor) => {
-  return !!descriptor && descriptor.get && !descriptor.set;
+  return !!descriptor && !!descriptor.get && !descriptor.set;
 }
 
 export const isSetter = (descriptor: PropertyDescriptor) => {
-  return !!descriptor && !descriptor.get && descriptor.set;
+  return !!descriptor && !descriptor.get && !!descriptor.set;
 }
 
 export const error = (message: string) => {
