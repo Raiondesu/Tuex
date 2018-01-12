@@ -19,7 +19,7 @@ export class Store<T extends { [key: string]: any }> {
     global: []
   }
 
-  private _storeEvent(type: EventType, store: T, key: keyof T, ...args) {
+  private _storeEvent(type: EventType, store: T, key: string, ...args) {
     this._eventPool[type].forEach(callback => callback(store, key, ...args));
   }
 
@@ -47,19 +47,7 @@ export class Store<T extends { [key: string]: any }> {
 
     this.replaceStore(target);
 
-
-    const pluginOptions = {
-      replaceStore: (_target) => {
-        return this.replaceStore(_target);
-      },
-      subscribe: (type: EventType, callback: (store: T, key: keyof T, ...args) => any) => {
-        return this.subscribe(type, callback);
-      },
-    };
-
-    Object.defineProperty(pluginOptions, 'store', Object.getOwnPropertyDescriptor(Store.prototype, 'store'));
-
-    plugins && plugins.forEach(plugin => plugin.apply(pluginOptions));
+    plugins && plugins.forEach(plugin => plugin.apply(this));
   }
 
   private _store: { state: T } = { state: null };
@@ -78,11 +66,11 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
    * Callback is executed BEFORE the event!
    *
    * @param {'value' | 'getter' | 'setter' | 'action' | 'global'} type
-   * @param {(store: T, key: keyof T) => any} callback
+   * @param {(store: T, key: string) => any} callback
    * @returns a funciton to unsubscribe from event
    * @memberof Tuex
    */
-  public subscribe(type: EventType, callback: (store: T, key: keyof T, ...args) => any) {
+  public subscribe(type: EventType, callback: (store: T, key: string, ...args) => any) {
     this._eventPool[type].push(callback);
     return () => {
       this._eventPool[type] = [...this._eventPool[type].filter(c => c != callback)];
