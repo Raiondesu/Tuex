@@ -26,11 +26,11 @@ export declare class Store<T extends {
      *
      *
      * @param {'value' | 'getter' | 'setter' | 'action' | 'global'} type
-     * @param {(store: T, key: keyof T) => any} callback
+     * @param {(store: T, key: string) => any} callback
      * @returns a funciton to unsubscribe from event
      * @memberof Tuex
      */
-    subscribe(type: EventType, callback: (store: T, key: keyof T, ...args) => any): () => void;
+    subscribe(type: EventType, callback: (store: T, key: string, ...args) => any): () => void;
     /** replaceStore
      *
      * A function that replaces the current store with the other one,
