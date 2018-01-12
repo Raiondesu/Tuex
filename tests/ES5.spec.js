@@ -35,7 +35,7 @@ describe('Tuex', () => {
             expect(key).toBe('x');
             state.x = 'ads';
             expect(state.test).toBe('ads');
-          })
+          });
         }
       ]
     });
@@ -94,7 +94,7 @@ describe('Tuex', () => {
                 return this.x + ' of y';
               }
             });
-          })
+          });
         }
       ]
     });
@@ -141,13 +141,27 @@ describe('Tuex', () => {
             expect(arg4).toBe(undefined);
             console.log('Called method ' + key);
           });
+
+          var counter = 0;
           this.subscribe('value', (state, key, value) => {
-            // if (value && key === 'value') {
-            //   expect(value).toBe(2);
-            // } else if (value && key === 'Value') {
-            //   expect(value).toBe(-1);
-            // }
+            var predict = (v) => expect(key).toBe(v);
+
+            switch (counter) {
+              case 0: predict('value'); break;
+              case 1: predict('Value'); break;
+              case 2: predict('value'); break;
+              case 3: predict('value'); break;
+              case 4: predict('Value'); break;
+              case 5: predict('value'); break;
+              case 6: predict('Value'); break;
+              case 7: predict('value'); break;
+              case 8: predict('Value'); break;
+              case 9: predict('value'); break;
+            }
+
             console.log('Accessed variable ' + key + (!!value ? ', assigning ' + value : ''));
+
+            counter++;
           });
         }
       ]
