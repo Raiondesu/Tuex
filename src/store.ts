@@ -126,7 +126,7 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
    */
   public objectToStore(plain: T, constructor?: new () => T): T {
     const obj: T = {} as T;
-    const keys = [].concat(keysOf(plain));
+    const keys = keysOf(plain);
 
     if (isFunction(constructor))
       keys.push(...keysOf(constructor.prototype));
@@ -144,36 +144,63 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
         }
       });
       else if (isValue(descriptor)) {
-        const isKeyObject = isObject(plain[key]);
-        if (isKeyObject)
-          plain[key] = this.objectToStore(plain[key]);
+        const isKeyObject = isObject(descriptor);
 
-        define({
-          enumerable: true,
-          get: () => {
+        let get, set;
+
+        if (isKeyObject) {
+          plain[key] = this.objectToStore(plain[key]);
+        }
+        if (descriptor.get)
+          get = () => {
+            callStoreEvent('value');
+            
+            // Should replace getter's context of 'this'
+            return descriptor.get.call(obj);
+          }
+        else
+          get = () => {
             callStoreEvent('value');
             return plain[key];
-          },
-          set: !this._strict ? value => {
+          }
+
+        if (descriptor.set && !this._strict)
+          set = value => {
             callStoreEvent('global', value);
             callStoreEvent('value', value);
+            
+            // Should replace setter's context of 'this'
+            descriptor.set.call(obj, value);
+          }
+        else if (!this._strict)
+          set = value => {
+            callStoreEvent('global', value);
+            callStoreEvent('value', value);
+
             plain[key] = isKeyObject ? this.objectToStore(value) : value;
-          } : () => error(
+          }
+        else
+          set = () => error(
             'Explicit mutations of store values are prohibited!\nPlease, use setters instead or disable the [strict] flag!'
-          )
-        });
+          );
+
+        define({ enumerable: true, get, set });
       }
       else if (isGetter(descriptor)) define({
         get: () => {
           callStoreEvent('getter');
-          return plain[key];
+
+          // Should replace getter's context of 'this'
+          return descriptor.get.call(obj);
         }
       });
       else if (isSetter(descriptor)) define({
         set: value => {
           callStoreEvent('global', value);
           callStoreEvent('setter', value);
-          plain[key] = value;
+
+          // Should replace setter's context of 'this'
+          descriptor.set.call(obj, value);
         }
       });
       else error('Descriptor of ' + key + ' is wrong!');

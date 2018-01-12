@@ -6,6 +6,8 @@ A simpler Vuex alternative written in TypeScript.
 
 ## [Full Documentation](https://github.com/Raiondesu/Tuex/wiki)
 
+## [Roadmap](https://github.com/Raiondesu/Tuex/wiki/Roadmap)
+
 ## About
 > (TypeScript + Vuex) - Complexity = Tuex
 
