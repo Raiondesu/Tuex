@@ -8,6 +8,8 @@ A simpler Vuex alternative written in TypeScript.
 
 ## [Full Documentation](https://github.com/Raiondesu/Tuex/wiki)
 
+![](https://github.com/Raiondesu/Tuex/raw/master/TuexDiagram.png)
+
 ## [About](https://github.com/Raiondesu/Tuex/wiki/What-is-Tuex)
 
 Tuex is a centralized state management library for Vue.js. It takes heavy inspiration from the Flux pattern (especially Vuex).
