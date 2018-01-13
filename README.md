@@ -12,7 +12,7 @@ A simpler Vuex alternative written in TypeScript.
 
 ## [About](https://github.com/Raiondesu/Tuex/wiki/What-is-Tuex)
 
-Tuex is a centralized state management library for Vue.js. It takes heavy inspiration from the Flux pattern (especially Vuex).
+Tuex is a reactive centralized state management library for Vue.js. It takes heavy inspiration from the Flux pattern (especially Vuex).
 
 The main goal of Tuex is to make state-management less complex for small-scale apps, while also keeping the state flexibile and scalabile.
 
