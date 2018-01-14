@@ -127,11 +127,14 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
 
       if (isFunction(plain[key])) define({
         value() {
-          var args = [], _args = ['action'];
-          for (var i = 0; i < arguments.length; i++) {
-            args.push(arguments[i]);
-            _args.push(args[i]);
-          }
+          var args = new Array(arguments.length),
+             _args = new Array(arguments.length + 1);
+
+          _args[0] = 'action';
+
+          for (var i = 0; i < arguments.length; i++)
+            _args[i + 1] = args[i] = arguments[i];
+
           callStoreEvent.apply(void 0, _args);
           return (<any>plain)[key].apply(obj, args);
         }
