@@ -1,6 +1,6 @@
 {
   "name": "tuex",
-  "version": "0.3.17",
+  "version": "0.3.18",
   "description": "A simple and mostly reasonable alternative to Vuex",
   "repository": "Raiondesu/Tuex",
   "bugs": {
