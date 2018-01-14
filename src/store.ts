@@ -126,8 +126,13 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
       const callStoreEvent = (type: EventType, ...args) => this._storeEvent.call(this, type, plain, key, ...args);
 
       if (isFunction(plain[key])) define({
-        value(...args) {
-          callStoreEvent('action', ...args);
+        value() {
+          var args = [], _args = ['action'];
+          for (var i = 0; i < arguments.length; i++) {
+            args.push(arguments[i]);
+            _args.push(args[i]);
+          }
+          callStoreEvent.apply(void 0, _args);
           return (<any>plain)[key].apply(obj, args);
         }
       });
@@ -142,8 +147,6 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
         if (descriptor.get)
           get = () => {
             callStoreEvent('value');
-
-            // Should replace getter's context of 'this'
             return descriptor.get.call(obj);
           }
         else
@@ -156,8 +159,6 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
           set = value => {
             callStoreEvent('global', value);
             callStoreEvent('value', value);
-
-            // Should replace setter's context of 'this'
             descriptor.set.call(obj, value);
           }
         else if (!this._strict)
@@ -177,8 +178,6 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
       else if (isGetter(descriptor)) define({
         get: () => {
           callStoreEvent('getter');
-
-          // Should replace getter's context of 'this'
           return descriptor.get.call(obj);
         }
       });
@@ -186,8 +185,6 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
         set: value => {
           callStoreEvent('global', value);
           callStoreEvent('setter', value);
-
-          // Should replace setter's context of 'this'
           descriptor.set.call(obj, value);
         }
       });
