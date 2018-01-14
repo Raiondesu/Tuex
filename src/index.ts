@@ -1,4 +1,7 @@
-import {} from 'node';
 import * as Tuex from './store'
+import { Store } from './store'
 
-module.exports = Tuex;
+export default Tuex;
+export {
+  Store
+}

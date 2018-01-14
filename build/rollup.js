@@ -1,6 +1,6 @@
 module.exports = [
   {
-    input: './src/index.ts',
+    input: './src/index.cjs.ts',
 
     output: {
       file: './cjs/index.js',
@@ -20,7 +20,7 @@ module.exports = [
     }
   },
   {
-    input: './src/index.ts',
+    input: './src/index.cjs.ts',
 
     output: {
       file: './umd/index.js',
@@ -40,7 +40,7 @@ module.exports = [
     }
   },
   {
-    input: './src/index.esm.ts',
+    input: './src/index.ts',
 
     output: {
       file: './esm/index.js',
