@@ -20,7 +20,8 @@ export class Store<T extends { [key: string]: any }> {
   }
 
   private _storeEvent(type: EventType, store: T, key: string, ...args) {
-    this._eventPool[type].forEach(callback => callback(store, key, ...args));
+    for (var i = 0; i < this._eventPool[type].length; i++)
+      this._eventPool[type][i](store, key, ...args);
   }
 
   private _strict: boolean = false;
@@ -120,6 +121,11 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
       keys.push(...keysOf(constructor.prototype));
 
     for (let key of keys) {
+      if (obj[key] !== undefined || key === 'constructor') {
+        (key !== 'constructor') && error(`Can't redefine '${key}'! Key is already defined!`);
+        continue;
+      }
+
       const define = (prop: PropertyDescriptor) => Object.defineProperty(obj, key, prop);
       const descriptor = desc(plain, key) || desc(constructor.prototype, key);
 
@@ -140,13 +146,8 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
         }
       });
       else if (isValue(descriptor)) {
-        const isKeyObject = isObject(descriptor);
-
         let get, set;
 
-        if (isKeyObject) {
-          plain[key] = this.objectToStore(plain[key]);
-        }
         if (descriptor.get)
           get = () => {
             callStoreEvent('value');
@@ -164,16 +165,25 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
             callStoreEvent('value', value);
             descriptor.set.call(obj, value);
           }
-        else if (!this._strict)
-          set = value => {
+        else if (!this._strict) {
+          if (isObject(descriptor)) {
+            plain[key] = this.objectToStore(plain[key]);
+            Object.defineProperty(plain[key], '$root', desc(this, 'store'));
+
+            set = value => {
+              callStoreEvent('global', value);
+              callStoreEvent('value', value);
+              plain[key] = this.objectToStore(value);
+              Object.defineProperty(plain[key], '$root', desc(this, 'store'));
+            }
+          } else set = value => {
             callStoreEvent('global', value);
             callStoreEvent('value', value);
-
-            plain[key] = isKeyObject ? this.objectToStore(value) : value;
+            plain[key] = value;
           }
-        else
+        } else
           set = () => error(
-            'Explicit mutations of store values are prohibited!\nPlease, use setters instead or disable the [strict] flag!'
+            'Explicit mutations of `' + key + '` are prohibited!\nPlease, use setters instead or disable the [strict] flag!'
           );
 
         define({ enumerable: true, get, set });
@@ -191,32 +201,10 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
           descriptor.set.call(obj, value);
         }
       });
-      else error('Descriptor of ' + key + ' is wrong!');
+      else error('Descriptor of `' + key + '` has niether getter, setter nor value!');
     }
 
     return Object.seal(obj);
-  }
-
-  public commit: {
-    (type: string, payload?): void;
-    <P extends any>(mutation: { type: string, payload?: P }): void;
-  } = function (mutation) {
-    if (typeof mutation === 'string') {
-      this.store[mutation] = arguments[1];
-    } else if (isObject(mutation)) {
-      this.store[mutation.type] = mutation.payload;
-    } else error('Invalid mutation definition!');
-  }
-
-  public dispatch: {
-    (type: string, payload?): void;
-    <P extends any>(action: { type: string, payload?: P }): void;
-  } = function (action) {
-    if (typeof action === 'string') {
-      this.store[action](arguments[1]);
-    } else if (isObject(action)) {
-      this.store[action.type](action.payload);
-    } else error('Invalid action definition!');
   }
 }
 

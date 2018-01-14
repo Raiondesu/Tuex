@@ -9,7 +9,7 @@
 		],
     "outDir": "./cjs",
 		"moduleResolution": "node",
-		"module": "es2015",
+		"module": "umd",
 		"alwaysStrict": true,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
