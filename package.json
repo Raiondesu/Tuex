@@ -1,6 +1,6 @@
 {
   "name": "tuex",
-  "version": "0.3.18",
+  "version": "0.3.19",
   "description": "A simple and mostly reasonable alternative to Vuex",
   "repository": "Raiondesu/Tuex",
   "bugs": {
@@ -11,7 +11,6 @@
   "unpkg": "umd/index.min.js",
   "esnext": "esm/index.js",
   "module": "esm/index.js",
-  "typings": "types/index.d.ts",
   "scripts": {
     "test": "jest",
     "retest": "npm run build && npm test",
