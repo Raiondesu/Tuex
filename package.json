@@ -1,32 +1,53 @@
 {
   "name": "tuex",
-  "version": "0.0.4",
-  "description": "A mostly reasonable replacement for Vuex",
-  "main": "dist/index.js",
+  "version": "0.3.20",
+  "description": "A simple and mostly reasonable alternative to Vuex",
+  "repository": "Raiondesu/Tuex",
+  "bugs": {
+    "email": "a.raiondesu@gmail.com",
+    "url": "https://github.com/Raiondesu/Tuex/issues"
+  },
+  "main": "cjs/index.js",
+  "unpkg": "umd/index.min.js",
+  "esnext": "esm/index.js",
+  "module": "esm/index.js",
   "scripts": {
     "test": "jest",
     "retest": "npm run build && npm test",
-    "build": "tsc"
+    "preversion": "npm run retest",
+    "postversion": "npm run build",
+    "patch": "npm version patch && npm publish",
+    "minor": "npm version minor && npm publish",
+    "major": "npm version major && npm publish",
+    "build": "rollup -c ./build/index.js"
   },
   "keywords": [
     "Vue",
-    "Vuex",
     "Vue.js",
-    "JS",
+    "Vuex",
+    "Replacement",
+    "Alternative",
+    "Tuex",
     "JavaScript",
     "TypeScript",
-    "TS",
-    "Replacement",
-    "Alternative"
+    "JS",
+    "TS"
   ],
   "author": "Raiondesu",
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^22.0.1",
+    "@types/node": "^8.5.8",
     "es6-promise": "4.1.1",
     "jest": "^22.0.4",
+    "rollup": "^0.53.4",
+    "rollup-plugin-ts": "^0.1.0",
+    "rollup-plugin-uglify": "^2.0.1",
     "ts-jest": "^22.0.1",
     "ts-node": "3.1.0",
+    "typescript": "^2.6.2",
+    "uglify-es": "^3.3.5",
+    "uglify-js": "^3.3.5",
     "vue": "^2.5.13"
   }
 }
