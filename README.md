@@ -62,4 +62,4 @@ Coming soon:
 - Full Wiki Documentation
 - Refactoring
 - Performance gains
-- Partilly Vuex-compatible API
+- Partially Vuex-compatible API
