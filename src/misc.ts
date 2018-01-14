@@ -2,12 +2,13 @@ export const desc = Object.getOwnPropertyDescriptor;
 export const keysOf = Object.getOwnPropertyNames;
 
 export const isObject = (descriptor) => {
-  const obj = descriptor.value
-  
-  if (!!obj)
-    return Object.prototype.toString.apply(obj) === '[object Object]';
-  else
-    return false;
+  if (descriptor) {
+    const obj = descriptor.value;
+
+    if (!!obj)
+      return Object.prototype.toString.apply(obj) === '[object Object]';
+  }
+  return !!descriptor;
 }
 
 export const isFunction = (fn) => {
