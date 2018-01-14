@@ -142,7 +142,7 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
         if (descriptor.get)
           get = () => {
             callStoreEvent('value');
-            
+
             // Should replace getter's context of 'this'
             return descriptor.get.call(obj);
           }
@@ -156,7 +156,7 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
           set = value => {
             callStoreEvent('global', value);
             callStoreEvent('value', value);
-            
+
             // Should replace setter's context of 'this'
             descriptor.set.call(obj, value);
           }
@@ -194,7 +194,7 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
       else error('Descriptor of ' + key + ' is wrong!');
     }
 
-    return obj;
+    return Object.seal(obj);
   }
 }
 

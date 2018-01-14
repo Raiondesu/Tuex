@@ -169,6 +169,8 @@ describe('Tuex', () => {
 
     var vm = new Vue();
 
+    expect(Object.keys(vm.$store)).toEqual([ 'value', 'Value' ]);
+
     expect(vm.$store.value).toBe(0);
     expect(vm.$store.Value).toBe(vm.$store.value);
 
