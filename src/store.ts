@@ -196,6 +196,28 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
 
     return Object.seal(obj);
   }
+
+  public commit: {
+    (type: string, payload?): void;
+    <P extends any>(mutation: { type: string, payload?: P }): void;
+  } = function (mutation) {
+    if (typeof mutation === 'string') {
+      this.store[mutation] = arguments[1];
+    } else if (isObject(mutation)) {
+      this.store[mutation.type] = mutation.payload;
+    } else error('Invalid mutation definition!');
+  }
+
+  public dispatch: {
+    (type: string, payload?): void;
+    <P extends any>(action: { type: string, payload?: P }): void;
+  } = function (action) {
+    if (typeof action === 'string') {
+      this.store[action](arguments[1]);
+    } else if (isObject(action)) {
+      this.store[action.type](action.payload);
+    } else error('Invalid action definition!');
+  }
 }
 
 export function install(Vue) {

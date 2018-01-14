@@ -50,5 +50,16 @@ export declare class Store<T extends {
      * @memberof Tuex
      */
     objectToStore(plain: T, constructor?: new () => T): T;
+
+
+    commit: {
+      (type: string, payload?): void;
+      <P extends any>(mutation: { type: string, payload?: P }): void;
+    }
+
+    dispatch: {
+      (type: string, payload?): void;
+      <P extends any>(action: { type: string, payload?: P }): void;
+    }
 }
 export declare function install(Vue: any): void;
