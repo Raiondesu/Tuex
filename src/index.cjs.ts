@@ -1,4 +1,4 @@
-import {} from 'node';
-import * as Tuex from './store'
+// import {} from 'node';
+export * from './store'
 
-exports = module.exports = Tuex;
+// exports = module.exports = Tuex;
