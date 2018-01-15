@@ -168,13 +168,14 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
         else if (!this._strict) {
           if (isObject(descriptor)) {
             plain[key] = this.objectToStore(plain[key]);
-            Object.defineProperty(plain[key], '$root', desc(this, 'store'));
+
+            Object.defineProperty(plain[key], '$root', desc(Object.getPrototypeOf(this), 'store'));
 
             set = value => {
               callStoreEvent('global', value);
               callStoreEvent('value', value);
               plain[key] = this.objectToStore(value);
-              Object.defineProperty(plain[key], '$root', desc(this, 'store'));
+              Object.defineProperty(plain[key], '$root', desc(Object.getPrototypeOf(this), 'store'));
             }
           } else set = value => {
             callStoreEvent('global', value);
@@ -204,7 +205,7 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
       else error('Descriptor of `' + key + '` has niether getter, setter nor value!');
     }
 
-    return Object.seal(obj);
+    return (obj);
   }
 }
 
