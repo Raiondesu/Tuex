@@ -180,4 +180,47 @@ describe('Tuex', () => {
 
     vm.$store.Value = -1;
   });
+
+  test('nested objects function correctly', () => {
+    var Vue = require('vue/dist/vue');
+    var Tuex = require('../cjs');
+
+    Vue.use(Tuex);
+
+    var Test = new Tuex.Store({
+      rootprop: 0,
+      obj: {
+        a: 12,
+        b: 'foo'
+      }
+    }, {
+      plugins: [
+        function () {
+          this.subscribe('value', (store, key, value) => {
+            console.log(key + ': ' + store[key] + (value ? ' = ' + value : ''));
+          });
+        }
+      ]
+    });
+
+    var vm = new Vue();
+
+    vm.$store.obj.a = -1;
+    vm.$store.obj.b = 'bar';
+
+    vm.$store.obj = {
+      a: 'foo',
+      b: 12,
+      rootprop() {
+        this.$root.rootprop++;
+      }
+    }
+
+    vm.$store.obj.b = -22;
+    vm.$store.obj.a = 'barz';
+
+    vm.$store.obj.rootprop();
+
+    expect(vm.$store.rootprop).toBe(1);
+  });
 })

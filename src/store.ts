@@ -108,7 +108,6 @@ function replaceStore<T>(target: (T | (new () => T))) {
   Object.defineProperties(_store, objectToStore(target));
 }
 
-
 /** objectToStore
  *
  * Converts a plain js object into a valid Tuex-store
@@ -198,10 +197,11 @@ function objectToStore<T>(target: (T | (new () => T))): { [key: string]: Propert
           callStoreEvent('value', value);
           plain[key] = value;
         }
-      } else
+      } else {
         set = () => error(
           'Explicit mutations of `' + key + '` are prohibited!\nPlease, use setters instead or disable the [strict] flag!'
         );
+      }
 
       define({ enumerable: true, get, set });
     }
