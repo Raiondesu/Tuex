@@ -219,7 +219,7 @@ describe('Tuex', () => {
     vm.$store.obj.b = -22;
     vm.$store.obj.a = 'barz';
 
-    vm.$store.obj.rootprop += 1;
+    vm.$store.obj.rootprop = 1;
 
     expect(vm.$store.rootprop).toBe(1);
   });
