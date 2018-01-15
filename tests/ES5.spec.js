@@ -188,6 +188,7 @@ describe('Tuex', () => {
     Vue.use(Tuex);
 
     var Test = new Tuex.Store({
+      rootprop: 0,
       obj: {
         a: 12,
         b: 'foo'
@@ -209,10 +210,17 @@ describe('Tuex', () => {
 
     vm.$store.obj = {
       a: 'foo',
-      b: 12
+      b: 12,
+      set rootprop(value) {
+        this.$root.rootprop = value;
+      }
     }
 
     vm.$store.obj.b = -22;
     vm.$store.obj.a = 'barz';
+
+    vm.$store.obj.rootprop += 1;
+
+    expect(vm.$store.rootprop).toBe(1);
   });
 })

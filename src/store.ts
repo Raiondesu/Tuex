@@ -95,10 +95,10 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
       } catch (e) {
         plain = (target as () => T)();
       }
-      this._store.state = this.objectToStore(plain, (target as new () => T));
+      this._store.state = Object.seal(this.objectToStore(plain, (target as new () => T)));
     } else {
       plain = target as T;
-      this._store.state = this.objectToStore(plain);
+      this._store.state = Object.seal(this.objectToStore(plain));
     }
 
     _vue && (_vue.prototype.$store = this.store);
@@ -169,13 +169,20 @@ Explicit store assignment is prohibited! Consider using [replaceStore] instead!`
           if (isObject(descriptor)) {
             plain[key] = this.objectToStore(plain[key]);
 
-            Object.defineProperty(plain[key], '$root', desc(Object.getPrototypeOf(this), 'store'));
+            Object.defineProperty(plain[key], '$root', {
+              get: () => this._store.state
+            });
+
+            Object.seal(plain[key]);
 
             set = value => {
               callStoreEvent('global', value);
               callStoreEvent('value', value);
               plain[key] = this.objectToStore(value);
-              Object.defineProperty(plain[key], '$root', desc(Object.getPrototypeOf(this), 'store'));
+              Object.defineProperty(plain[key], '$root', {
+                get: () => this._store.state
+              });
+              Object.seal(plain[key]);
             }
           } else set = value => {
             callStoreEvent('global', value);
