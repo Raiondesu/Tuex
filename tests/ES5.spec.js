@@ -212,7 +212,7 @@ describe('Tuex', () => {
       b: 12
     }
 
-    vm.$store.obj.b = -1;
-    vm.$store.obj.a = 'bar';
+    vm.$store.obj.b = -22;
+    vm.$store.obj.a = 'barz';
   });
 })
