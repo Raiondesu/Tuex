@@ -62,3 +62,10 @@ Coming soon:
 - Full Wiki Documentation
 - Refactoring
 - Performance gains
+- Breaking changes
+
+- More configuration options
+- Code coverage
+- Fully Vuex-compatible API (to some extent)
+
+- Component binding helpers
