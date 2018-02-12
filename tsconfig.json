@@ -12,7 +12,8 @@
 		"alwaysStrict": true,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
-		"noUnusedParameters": true,
+    "noUnusedParameters": true,
+    "sourceMap": true,
     "emitDecoratorMetadata": true,
 		"typeRoots": [
       "@types/jest",
