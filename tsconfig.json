@@ -1,26 +1,25 @@
 {
 	"compilerOptions": {
     "noEmit": true,
-		"target": "es5",
+		"target": "es6",
 		"lib": [
 			"es5",
 			"es2015",
 			"dom"
 		],
-    "outDir": "./cjs",
 		"moduleResolution": "node",
-		"module": "umd",
+		"module": "es2015",
 		"alwaysStrict": true,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
 		"noUnusedParameters": true,
     "emitDecoratorMetadata": true,
-    "rootDir": "./src",
 		"typeRoots": [
       "@types/jest",
       "@types/node",
       "./types"
-		]
+    ],
+    "baseUrl": "./src"
   },
   "exclude": [
     "./node_modules",

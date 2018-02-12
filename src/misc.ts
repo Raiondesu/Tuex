@@ -1,29 +1,20 @@
-export const desc = Object.getOwnPropertyDescriptor;
-export const keysOf = Object.getOwnPropertyNames;
+import {} from 'node';
 
-export const isObject = (descriptor) => {
-  if (!descriptor) return false;
+export const desc = Object.getOwnPropertyDescriptor as (<T>(obj: T, key: keyof T) => PropertyDescriptor);
+export const keysOf = Object.getOwnPropertyNames as (<T>(obj: T) => (keyof T)[]);
 
-  const obj = descriptor.value;
+export const isObject = (descriptor: PropertyDescriptor) =>
+  Object.prototype.toString.apply(descriptor.value) === '[object Object]';
 
-  if (!!obj)
-    return Object.prototype.toString.apply(obj) === '[object Object]';
-  else
-    return false;
-}
-
-export const isFunction = (fn) => {
+export const isFunction = (descriptor: PropertyDescriptor) => {
+  const fn = descriptor.value;
   return !!fn && (fn instanceof Function || typeof fn === 'function');
 }
 
-export const isPromise = (value) => {
-  return !!value && isFunction(value.then);
-}
-
 export const isValue = (descriptor: PropertyDescriptor) => {
-  return !!descriptor && (
-    (!isFunction(descriptor.value) && !descriptor.get && !descriptor.set)
-    || (!descriptor.value && descriptor.get && descriptor.set)
+  return !!(!!descriptor && (
+    (!isFunction(descriptor) && !descriptor.get && !descriptor.set)
+    || (!descriptor.value && descriptor.get && descriptor.set))
   );
 }
 
@@ -37,6 +28,16 @@ export const isSetter = (descriptor: PropertyDescriptor) => {
 
 export const error = (message: string) => {
   if (process && process.env.NODE_ENV !== 'production') {
-    console.error(message);
+    return console.error('[Tuex warn] ' + message);
   }
+}
+
+export function fromPath<T>(obj: T, path: string): any {
+  if (!path || !(/\w+((\.|\/)\w+)*/.test(path)))
+    return obj;
+
+  // Support system-like paths
+  path = path.replace(/\//g, '.');
+
+  return path.split('.').reduce((o, i) => isObject({ value: o }) ? (o[i] || o) : o, obj);
 }

@@ -1,6 +1,7 @@
 node_modules
 ISSUE_TEMPLATE.md
 tests
+coverage
 .gitignore
 .editorconfig
 .travis.yml

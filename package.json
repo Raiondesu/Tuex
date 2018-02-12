@@ -7,13 +7,14 @@
     "email": "a.raiondesu@gmail.com",
     "url": "https://github.com/Raiondesu/Tuex/issues"
   },
-  "main": "cjs/index.js",
-  "unpkg": "umd/index.min.js",
-  "esnext": "esm/index.js",
-  "module": "esm/index.js",
+  "main": "lib/cjs/index.js",
+  "unpkg": "lib/umd/index.min.js",
+  "esnext": "lib/esm/index.js",
+  "module": "lib/esm/index.js",
   "scripts": {
     "test": "jest",
     "retest": "npm run build && npm test",
+    "coverage": "jest --colors --coverage | codacy-coverage",
     "preversion": "npm run retest",
     "postversion": "npm run build",
     "patch": "npm version patch && npm publish",
@@ -38,6 +39,7 @@
   "devDependencies": {
     "@types/jest": "^22.0.1",
     "@types/node": "^8.5.8",
+    "codacy-coverage": "^2.0.3",
     "es6-promise": "4.1.1",
     "jest": "^22.0.4",
     "rollup": "^0.53.4",
@@ -45,9 +47,26 @@
     "rollup-plugin-uglify": "^2.0.1",
     "ts-jest": "^22.0.1",
     "ts-node": "3.1.0",
+    "tuex": "file:.",
     "typescript": "^2.6.2",
     "uglify-es": "^3.3.5",
     "uglify-js": "^3.3.5",
     "vue": "^2.5.13"
+  },
+  "jest": {
+    "verbose": true,
+    "mapCoverage": true,
+    "collectCoverage": true,
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testMatch": [
+      "**/tests/**/*.(ts|tsx)"
+    ]
   }
 }

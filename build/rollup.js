@@ -1,16 +1,19 @@
+const srcDir = './src/';
+const outDir = './lib/';
+
 module.exports = [
   {
-    input: './src/index.cjs.ts',
+    input: srcDir + 'index.cjs.ts',
 
     output: {
-      file: './cjs/index.js',
+      file: outDir + 'index.js',
       format: 'cjs',
     },
 
     tsconfig: {
       ...require('./tsconfig'),
       target: 'es5',
-      outDir: './cjs',
+      outDir: outDir + 'cjs',
       module: 'commonjs',
       lib: [
         'es5',
@@ -20,17 +23,17 @@ module.exports = [
     }
   },
   {
-    input: './src/index.cjs.ts',
+    input: srcDir + 'index.cjs.ts',
 
     output: {
-      file: './umd/index.js',
+      file: outDir + 'umd/index.js',
       format: 'umd',
     },
 
     tsconfig: {
       ...require('./tsconfig'),
       target: 'es5',
-      outDir: './umd',
+      outDir: outDir + 'umd',
       module: 'umd',
       lib: [
         'es5',
@@ -40,17 +43,17 @@ module.exports = [
     }
   },
   {
-    input: './src/index.ts',
+    input: srcDir + 'index.ts',
 
     output: {
-      file: './esm/index.js',
+      file: outDir + 'esm/index.js',
       format: 'es',
     },
 
     tsconfig: {
       ...require('./tsconfig'),
       target: 'esnext',
-      outDir: './esm',
+      outDir: outDir + 'esm',
       module: 'es2015',
       lib: [
         'es5',

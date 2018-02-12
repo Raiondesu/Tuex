@@ -1,4 +1,14 @@
-import * as Tuex from './store'
-export { Store } from './store'
+import {
+  install,
+  Store
+} from './store'
 
-export default Tuex;
+export {
+  install,
+  Store
+}
+
+export default {
+  install,
+  Store
+}
