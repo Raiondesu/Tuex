@@ -47,7 +47,6 @@
     "rollup-plugin-uglify": "^2.0.1",
     "ts-jest": "^22.0.1",
     "ts-node": "3.1.0",
-    "tuex": "file:.",
     "typescript": "^2.6.2",
     "uglify-es": "^3.3.5",
     "uglify-js": "^3.3.5",

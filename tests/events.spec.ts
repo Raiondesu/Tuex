@@ -1,5 +1,5 @@
-import { _eventPool, clearEvents, executeStoreEvent, subscribe } from 'tuex/src/events'
-import { ActionCallback, GetterCallback, ValueCallback, MutationCallback, EventType, EventPool } from 'tuex/types'
+import { _eventPool, clearEvents, executeStoreEvent, subscribe } from '../src/events'
+import { ActionCallback, GetterCallback, ValueCallback, MutationCallback, EventType, EventPool } from '../types'
 
 describe('subscribe', () => {
   const callback: MutationCallback = (key, ...args) => {};

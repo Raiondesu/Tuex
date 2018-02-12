@@ -1,4 +1,4 @@
-import { constructorToObject } from 'tuex/src/store'
+import { constructorToObject } from '../../src/store'
 
 describe('constructorToObject', () => {
   test('converts from simple plain object', () => {

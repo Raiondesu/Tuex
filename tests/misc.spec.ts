@@ -8,7 +8,7 @@ import {
   isValue,
   error,
   keysOf
-} from 'tuex/src/misc'
+} from '../src/misc'
 
 describe('fromPath', () => {
   const obj = {
