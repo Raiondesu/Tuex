@@ -3,12 +3,10 @@ node_js:
   - "8.9.1"
 before_install:
   - 'npm install -g npm@5.5.1'
+  - 'npm install -g codecov'
   - 'rm -rf node_modules'
 install: npm i
 scripts:
-  - npm install codecov -g
-  - npm run build && npm run coverage
-after_success:
-  - codecov
+  - npm run build && npm run coverage && codecov
 notifications:
   email: false
