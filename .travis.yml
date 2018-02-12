@@ -5,6 +5,6 @@ before_install:
   - 'npm install -g npm@5.5.1'
   - 'rm -rf node_modules'
 install: npm i | npm i | npm i
-script: npm run build && npm coverage
+script: npm run build && npm run coverage
 notifications:
   email: false
