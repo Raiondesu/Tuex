@@ -1,11 +1,11 @@
-import Vue from "vue";
+import Vue, { VueConstructor } from "vue";
 import { prototype } from "events";
 import { clearEvents, subscribe, executeStoreEvent } from "./events";
 import { error, desc, isFunction, keysOf, isValue, isObject, isGetter, isSetter, fromPath } from "./misc";
 import { EventType, MutationPayload, ActionPayload, Commit, Dispatch } from '../types';
 
-export let _vue;
-export let _state = {};
+export let _vue: VueConstructor;
+export let _state: any = {};
 export let _strict: boolean = false;
 
 export let isInstalled: boolean = false;
@@ -31,11 +31,11 @@ export const stateWrapper = {
  * @memberof Tuex
  */
 export function replaceState<T>(target: (T | (new () => T))) {
-  _state = objectToStore(target);
-  Object.preventExtensions(_state);
+  _state = {};
+  objectToStore(target);
 }
 
-export function install(Vue) {
+export function install(Vue: VueConstructor) {
   if (_vue && Vue === _vue && !!Vue) {
     error('[tuex] is already installed. Vue.use(Tuex) should be called only once.')
     return;
@@ -66,7 +66,7 @@ export class Store<T> {
     this.state = target as T;
 
     if (!_vue.prototype.$store) {
-      Object.defineProperty(_vue.prototype.$store, 'state', desc(stateWrapper, 'state'));
+      _vue.prototype.$store = stateWrapper;
     }
 
     plugins && plugins.forEach(plugin => plugin(this));
@@ -123,221 +123,118 @@ export class Store<T> {
  * @returns converted store
  * @memberof Tuex
  */
-/* export function objectToStore<T>(target: (T | (new () => T) | (() => T)), path: string = ''): PropertyDescriptorMap {
-  let plain, proto;
-
-  if (isFunction({ value: target })) {
-    try {
-      plain = new (target as new () => T)();
-      proto = (target as new () => T).prototype;
-    } catch (e) {
-      error(e);
-      plain = (target as () => T)()
-    }
-  } else {
-    plain = target;
-  }
-
-  const store = fromPath(_state, path);
-  const obj = {};
-  const keys = keysOf(plain);
-
-  if (proto)
-    keys.push(...keysOf(proto));
-
-  for (let key of keys) {
-    if (obj[key] !== undefined || key === 'constructor') {
-      (key !== 'constructor') && error(`Can't redefine '${key}'! Key is already defined!`);
-      continue;
-    }
-
-    const define = (prop: PropertyDescriptor) => obj[key] = prop;
-    const descriptor = desc(plain, key) || desc(proto, key);
-
-    const callStoreEvent = (type: EventType, ...args) => executeStoreEvent(type, fromPath(_state, path), key, ...args);
-
-    if (isFunction(descriptor)) define({
-      value() {
-        var args = new Array(arguments.length),
-            _args = new Array(arguments.length + 1);
-
-        _args[0] = 'action';
-
-        for (var i = 0; i < arguments.length; i++)
-          _args[i + 1] = args[i] = arguments[i];
-
-        callStoreEvent.apply(void 0, _args);
-        return (<any>plain)[key].apply(store, args);
-      }
-    });
-    else if (isValue(descriptor)) {
-      let get, set;
-
-      if (descriptor.get) get = () => {
-        callStoreEvent('getter');
-        return descriptor.get.call(store);
-      }
-      else get = isObject(descriptor) ? () => {
-        callStoreEvent('object');
-        return plain[key];
-      } : () => {
-        callStoreEvent('value');
-        return plain[key];
-      }
-
-      if (descriptor.set && !_strict)
-        set = value => {
-          callStoreEvent('global', value);
-          callStoreEvent('value', value);
-          descriptor.set.call(store, value);
-        }
-      else if (!_strict) {
-        if (isObject(descriptor)) {
-          const defineValue = value => {
-            const temp = objectToStore(value, path ? path + '.' + key : key);
-            plain[key] = {};
-            Object.defineProperties(plain[key], temp);
-            !plain[key].$root && Object.defineProperty(plain[key], '$root', desc(stateWrapper, 'store'));
-            Object.preventExtensions(plain[key]);
-          };
-
-          defineValue(plain[key]);
-
-          set = value => {
-            callStoreEvent('object', value);
-            callStoreEvent('value', value);
-            defineValue(value);
-          }
-        } else set = value => {
-          callStoreEvent('global', value);
-          callStoreEvent('value', value);
-          plain[key] = value;
-        }
-      } else set = () => {
-        error(
-          'Explicit mutations of `' + key + '` are prohibited!\nPlease, use setters instead or disable the [strict] flag!'
-        );
-      }
-
-      define({ enumerable: true, get, set });
-    }
-    else if (isGetter(descriptor)) define({
-      get: () => {
-        callStoreEvent('getter');
-        return descriptor.get.call(store);
-      }
-    });
-    else if (isSetter(descriptor)) define({
-      set: value => {
-        callStoreEvent('global', value);
-        callStoreEvent('setter', value);
-        descriptor.set.call(store, value);
-      }
-    });
-    else error('Descriptor of `' + key + '` has niether getter, setter nor value!');
-  }
-
-  return obj;
-} */
-
-export function objectToStore<T>(target: (T | (new () => T)), path: string = ''): T {
+export function objectToStore<T>(target: (T | (new () => T)), path: string = '') {
   const { keys, plain, proto } = constructorToObject(target);
+  const store = path ? fromPath(_state, path) : _state;
 
-  const store = fromPath(_state, path);
-  const obj: T = {} as T;
+  const options = populateOptions(store, keys, plain, proto, path);
+
+  vm = new _vue(options);
+
+  for (let key in options.methods) {
+    const callStoreEvent = (type: EventType, ...args) => executeStoreEvent(type, (path ? path + '.' : '') + key, ...args);
+
+    _state[key] = function () {
+      var args = new Array(arguments.length),
+      _args = new Array(arguments.length + 1);
+
+      _args[0] = 'action';
+
+      for (var i = 0; i < arguments.length; i++)
+        _args[i + 1] = args[i] = arguments[i];
+
+      callStoreEvent.apply(void 0, _args);
+      return vm[key].apply(store, args);
+    };
+  }
+
+  for (let key in options.computed) {
+    const callStoreEvent = (type: EventType, ...args) => executeStoreEvent(type, (path ? path + '.' : '') + key, ...args);
+
+    const descriptor = desc(vm as any, key);
+
+    if (options.computed[key].set) {
+      Object.defineProperty(_state, key, {
+        set: value => {
+          callStoreEvent('setter');
+          return descriptor.set.call(store, value);
+        },
+        enumerable: false,
+        configurable: false
+      });
+    } else if (!_state[key]) {
+      Object.defineProperty(_state, key, {
+        get: () => {
+          callStoreEvent('getter');
+          return descriptor.get.call(store);
+        },
+        enumerable: false,
+        configurable: false
+      });
+    }
+  }
+
+  for (let key in options.data) {
+    const callStoreEvent = (type: EventType, ...args) => executeStoreEvent(type, (path ? path + '.' : '') + key, ...args);
+
+    Object.defineProperty(_state, key, {
+      get: () => {
+        callStoreEvent('value');
+        return vm.$data[key];
+      },
+      set: value => {
+        callStoreEvent('value', value);
+        return vm.$data[key] = value;
+      },
+      enumerable: true,
+      writable: false
+    })
+  }
+
+  Object.preventExtensions(_state);
+}
+
+export function populateOptions<T>(store, keys: (keyof T)[], plain: T, proto, path: string = ''): { data: any, methods: any, computed: any } {
+  const options: any = {
+    data: {},
+    methods: {},
+    computed: {}
+  }
 
   for (let key of keys) {
-    if (obj[key] !== undefined) {
+    if (options.data[key] !== undefined || options.computed[key] !== undefined || options.methods[key] !== undefined) {
       error(`Can't redefine '${key}'! Key is already defined!`);
       continue;
     }
-    const define = (prop: PropertyDescriptor) => Object.defineProperty(obj, key, prop);
+
     const descriptor = desc(fromPath(plain, path), key) || desc(fromPath(proto, path), key);
 
-    const callStoreEvent = (type: EventType, ...args) => executeStoreEvent(type, fromPath(_state, path), key, ...args);
-
-    if (isFunction(descriptor)) define({
-      value() {
-        var args = new Array(arguments.length),
-            _args = new Array(arguments.length + 1);
-
-        _args[0] = 'action';
-
-        for (var i = 0; i < arguments.length; i++)
-          _args[i + 1] = args[i] = arguments[i];
-
-        callStoreEvent.apply(void 0, _args);
-        return (<any>plain)[key].apply(store, args);
-      }
-    });
-    else if (isGetter(descriptor)) define({
-      get: () => {
-        callStoreEvent('getter');
-        return descriptor.get.call(store);
-      }
-    });
-    else if (isSetter(descriptor)) define({
-      set: value => {
-        callStoreEvent('mutation', value);
-        callStoreEvent('setter', value);
-        descriptor.set.call(store, value);
-      }
-    });
+    if (isFunction(descriptor)) {
+      options.methods[key] = descriptor.value.bind(store);
+    }
     else if (isValue(descriptor)) {
-      let get, set;
-
-      if (descriptor.get) get = () => {
-        callStoreEvent('getter');
-        return descriptor.get.call(store);
-      }
-      else get = isObject(descriptor) ? () => {
-        callStoreEvent('object');
-        return plain[key];
-      } : () => {
-        callStoreEvent('value');
-        return plain[key];
-      }
-
-      if (descriptor.set && !_strict)
-        set = value => {
-          callStoreEvent('mutation', value);
-          callStoreEvent('value', value);
-          descriptor.set.call(store, value);
-        }
-      else if (!_strict) {
-        if (isObject(descriptor)) {
-          const defineValue = value => {
-            const temp = objectToStore(value, path ? path + '.' + key : key);
-            (<any>plain[key]) = {};
-            Object.defineProperties(plain[key], temp);
-            !(<any>plain[key]).$root && Object.defineProperty(plain[key], '$root', desc(stateWrapper, 'state'));
-            Object.preventExtensions(plain[key]);
-          };
-
-          defineValue(plain[key]);
-
-          set = value => {
-            callStoreEvent('object', value);
-            callStoreEvent('value', value);
-            defineValue(value);
-          }
-        } else set = value => {
-          callStoreEvent('mutation', value);
-          callStoreEvent('value', value);
-          plain[key] = value;
-        }
-      } else set = () => {
-        error(
-          'Explicit mutations of `' + key + '` are prohibited!\nPlease, use setters instead or disable the [strict] flag!'
-        );
-      }
-
-      define({ enumerable: true, get, set });
+      Object.defineProperty(options.data, key, {
+        get: () => plain[key],
+        set: value => plain[key] = value
+      })
+    }
+    else if (isGetter(descriptor)) {
+      options.computed[key] = {
+        get: descriptor.get.bind(store),
+        cache: false
+      };
+    }
+    else if (isSetter(descriptor)) {
+      options.computed[key] = {
+        get() {},
+        set: descriptor.set.bind(store),
+        cache: false
+      };
     }
     else error('Descriptor of `' + key + '` has niether getter, setter nor value!');
   }
 
-  return obj;
+  return options;
 }
 
 export function constructorToObject<T>(target: (T | (new () => T))): { plain: T, keys: (keyof T)[], proto } {

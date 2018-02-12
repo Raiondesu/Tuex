@@ -67,8 +67,17 @@ describe('constructorToObject', () => {
   })
 
   test('converts from complex class', () => {
-    class Complex {
+    class Parent {
       constructor() {
+        this.parentProp = 'parent';
+      }
+
+      parentProp: string
+    }
+
+    class Complex extends Parent {
+      constructor() {
+        super();
         this.e = (arg: string) => {
           return arg + 's';
         };
@@ -87,11 +96,12 @@ describe('constructorToObject', () => {
 
     const { keys, plain } = constructorToObject(Complex);
 
-    expect(keys.length).toBe(6);
-    expect(keys).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
+    expect(keys.length).toBe(7);
+    expect(keys).toEqual(['parentProp', 'a', 'b', 'c', 'd', 'e', 'f']);
 
     expect(plain.f).toBe('test function');
     expect(plain.a.x).toBe('asd');
+    expect(plain.parentProp).toBe('parent');
     expect(plain.e(plain.a.x)).toBe(plain.a.x + 's');
     expect(plain.e(plain.a.x)).toBe('asds');
   })

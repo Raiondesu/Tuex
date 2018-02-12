@@ -64,7 +64,7 @@
       "^.+\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testMatch": [
-      "**/tests/**/*.(ts|tsx)"
+      "**/tests/**/*.(ts|tsx|js)"
     ]
   }
 }

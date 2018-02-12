@@ -1,3 +1,4 @@
+import Vue from "vue";
 import { EventType } from ".";
 
 export interface Payload<T> {
