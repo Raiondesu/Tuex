@@ -14,7 +14,7 @@
   "scripts": {
     "test": "jest",
     "retest": "npm run build && npm test",
-    "coverage": "jest --colors --coverage | codacy-coverage",
+    "coverage": "jest --colors --coverage",
     "preversion": "npm run retest",
     "postversion": "npm run build",
     "patch": "npm version patch && npm publish",
@@ -39,7 +39,6 @@
   "devDependencies": {
     "@types/jest": "^22.0.1",
     "@types/node": "^8.5.8",
-    "codacy-coverage": "^2.0.3",
     "es6-promise": "4.1.1",
     "jest": "^22.0.4",
     "rollup": "^0.53.4",
