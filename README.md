@@ -1,4 +1,4 @@
-# Tuex
+# Tuex (beta)
 
 A simpler Vuex alternative written in TypeScript.
 
