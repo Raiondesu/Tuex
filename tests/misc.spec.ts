@@ -1,5 +1,5 @@
 import {
-  fromPath,
+  pathValue,
   desc,
   isFunction,
   isGetter,
@@ -10,7 +10,7 @@ import {
   keysOf
 } from '../src/misc'
 
-describe('fromPath', () => {
+describe('pathValue', () => {
   const obj = {
     bar: 'foo',
     foo: {
@@ -32,32 +32,73 @@ describe('fromPath', () => {
     }
   }
 
-  test('returns object from empty path', () => expect(fromPath(obj, '')).toBe(obj))
+  test('returns object from empty path', () => expect(pathValue(obj, '')).toBe(obj))
 
   test('returns property from path', () => {
-    expect(fromPath(obj, 'bar')).toBe(obj.bar);
-    expect(fromPath(obj, 'bar')).toBe('foo');
+    expect(pathValue(obj, 'bar')).toBe(obj.bar);
+    expect(pathValue(obj, 'bar')).toBe('foo');
   })
 
   test('returns nested property from dotted path', () => {
-    expect(fromPath(obj, 'foo.bar')).toBe(obj.foo.bar);
-    expect(fromPath(obj, 'foo.bar')).toBe('baz');
+    expect(pathValue(obj, 'foo.bar')).toBe(obj.foo.bar);
+    expect(pathValue(obj, 'foo.bar')).toBe('baz');
 
-    expect(fromPath(obj, 'complex.nested.path.you.never.asked.for')).toBe(obj.complex.nested.path.you.never.asked.for);
-    expect(fromPath(obj, 'complex.nested.path.you.never.asked.for')).toBe('I never asked for this!');
+    expect(pathValue(obj, 'complex.nested.path.you.never.asked.for')).toBe(obj.complex.nested.path.you.never.asked.for);
+    expect(pathValue(obj, 'complex.nested.path.you.never.asked.for')).toBe('I never asked for this!');
   })
 
-  test('returns first match for wrong path', () => {
-    expect(fromPath(obj, 'complex.nested.path.you.always.asked.for')).toBe('haha, no');
-    expect(fromPath(obj, 'complex.nested.path.you.aaaalways.asked.for')).toBe(obj.complex.nested.path.you);
+  test('returns undefined for wrong path', () => {
+    expect(pathValue(obj, 'complex.nested.path.you.always.asked.for')).toBe(undefined);
+    expect(pathValue(obj, 'complex.nested.path.you.aaaalways.asked.for')).toBe(undefined);
   })
 
   test('returns nested property from system-like path', () => {
-    expect(fromPath(obj, 'foo/bar')).toBe(obj.foo.bar);
-    expect(fromPath(obj, 'foo/bar')).toBe('baz');
+    expect(pathValue(obj, 'foo/bar')).toBe(obj.foo.bar);
+    expect(pathValue(obj, 'foo/bar')).toBe('baz');
 
-    expect(fromPath(obj, 'complex/nested/path/you/never/asked/for')).toBe(obj.complex.nested.path.you.never.asked.for);
-    expect(fromPath(obj, 'complex/nested/path/you/never/asked/for')).toBe('I never asked for this!');
+    expect(pathValue(obj, 'complex/nested/path/you/never/asked/for')).toBe(obj.complex.nested.path.you.never.asked.for);
+    expect(pathValue(obj, 'complex/nested/path/you/never/asked/for')).toBe('I never asked for this!');
+  })
+
+  test('assigns to existing path', () => {
+    const obj = {
+      path: {
+        nested: {
+          v: 2
+        }
+      }
+    };
+
+    pathValue(obj, ['path', 'nested', 'v'], -1);
+
+    expect(obj.path.nested.v).toBe(-1);
+  })
+
+  test('assigns to inexisting path', () => {
+    const obj: any = {};
+
+    pathValue(obj, 'path.nested.v', -1);
+    expect(obj.path.nested.v).toBe(-1);
+
+    pathValue(obj, 'path.nested.v.a', -10);
+    expect(obj.path.nested.v.a).toBe(-10);
+  })
+
+  test('assigns to empty path', () => {
+    let obj: any = {};
+
+    obj = pathValue(obj, '', { key: 2 });
+    expect(obj.key).toBe(2);
+  })
+
+  test('assigns to wrong paths', () => {
+    let obj: any = {};
+
+    obj = pathValue(obj, 'path.nested..a', -1);
+    expect(obj.path.nested).toBe(-1);
+
+    obj = pathValue(obj, 'path.nested.v.a', -10);
+    expect(obj.path.nested.v.a).toBe(-10);
   })
 })
 
@@ -100,9 +141,9 @@ describe('isObject', () => {
     const obj = {};
     class Obj {}
 
-    expect(isObject({ value: obj })).toBe(true);
-    expect(isObject({ value: new Obj() })).toBe(true);
-    expect(isObject({ value: new Obj })).toBe(true);
+    expect(isObject(obj)).toBe(true);
+    expect(isObject(new Obj())).toBe(true);
+    expect(isObject(new Obj)).toBe(true);
   })
 
   test('returns false for everything else', () => {
@@ -114,15 +155,14 @@ describe('isObject', () => {
     const _undefined = undefined;
     class Obj {}
 
-    expect(isObject({ value: Obj })).toBe(false);
-    expect(isObject({ value: f })).toBe(false);
-    expect(isObject({ value: () => {} })).toBe(false);
-    expect(isObject({ get: () => {} })).toBe(false);
-    expect(isObject({ value: number })).toBe(false);
-    expect(isObject({ value: string })).toBe(false);
-    expect(isObject({ value: boolean })).toBe(false);
-    expect(isObject({ value: _null })).toBe(false);
-    expect(isObject({ value: _undefined })).toBe(false);
+    expect(isObject(Obj)).toBe(false);
+    expect(isObject(f)).toBe(false);
+    expect(isObject(() => {})).toBe(false);
+    expect(isObject(number)).toBe(false);
+    expect(isObject(string)).toBe(false);
+    expect(isObject(boolean)).toBe(false);
+    expect(isObject(_null)).toBe(false);
+    expect(isObject(_undefined)).toBe(false);
   })
 })
 

@@ -105,4 +105,20 @@ describe('constructorToObject', () => {
     expect(plain.e(plain.a.x)).toBe(plain.a.x + 's');
     expect(plain.e(plain.a.x)).toBe('asds');
   })
+
+  test('handles exceptional cases with null', () => {
+    const { keys, plain, proto } = constructorToObject(null);
+
+    expect(keys).toEqual([]);
+    expect(plain).toBeNull();
+    expect(proto).toBeUndefined();
+  })
+
+  test('handles exceptional cases with undefined', () => {
+    const { keys, plain, proto } = constructorToObject(undefined);
+
+    expect(keys).toEqual([]);
+    expect(plain).toBeUndefined();
+    expect(proto).toBeUndefined();
+  })
 })
