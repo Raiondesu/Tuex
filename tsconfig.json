@@ -15,18 +15,25 @@
 		"experimentalDecorators": true,
     "noUnusedParameters": true,
     "sourceMap": true,
+    "strict": true,
     "emitDecoratorMetadata": true,
 		"typeRoots": [
       "@types/jest",
       "@types/node",
       "./types"
     ],
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "paths": {
+      "tuex": ["./"]
+    }
   },
   "exclude": [
     "./node_modules",
     "./dist",
-    "./types",
     "./tests"
+  ],
+  "include": [
+    "@types/jest",
+    "@types/node",
   ]
 }
