@@ -1,6 +1,6 @@
 node_modules
-ISSUE_TEMPLATE.md
 tests
+.github
 .gitignore
 .editorconfig
 .travis.yml
