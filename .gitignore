@@ -1,4 +1,15 @@
-node_modules
-lib
-coverage
+.DS_Store
+thumbs.db
+
+# Editor directories and files
+.idea
 .vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+node_modules/
+
+npm-debug.log
+yarn-error.log

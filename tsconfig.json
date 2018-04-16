@@ -1,39 +1,43 @@
 {
-	"compilerOptions": {
+  "compilerOptions": {
     "noEmit": true,
-		"target": "es6",
-		"lib": [
+    "target": "es5",
+    "module": "es2015",
+    "moduleResolution": "node",
+    "lib": [
       "es5",
       "es2015.collection",
-			"es2015",
-			"dom"
-		],
-		"moduleResolution": "node",
-		"module": "es2015",
-		"alwaysStrict": true,
-		"allowSyntheticDefaultImports": true,
-		"experimentalDecorators": true,
-    "noUnusedParameters": true,
-    "sourceMap": true,
-    "strict": true,
-    "emitDecoratorMetadata": true,
-		"typeRoots": [
-      "@types/jest",
-      "@types/node",
-      "./types"
+      "es2015",
+      "dom"
     ],
-    "baseUrl": "./src",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "alwaysStrict": true,
+    "strict": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "downlevelIteration": true,
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "typeRoots": [
+      "@types/jest",
+      "@types/node"
+    ],
+    "baseUrl": "./",
     "paths": {
-      "tuex": ["./"]
+      "misc": ["./src/misc"],
+      "store": ["./src/store"],
+      "tuex": ["./src"]
     }
   },
-  "exclude": [
-    "./node_modules",
-    "./dist",
-    "./tests"
-  ],
   "include": [
-    "@types/jest",
-    "@types/node",
+    "./src",
+    "./node_modules/@types/jest",
+    "./node_modules/@types/node"
+  ],
+  "exclude": [
+    "./build",
+    "./example"
   ]
 }

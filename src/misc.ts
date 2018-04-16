@@ -26,6 +26,12 @@ export const isSetter = (descriptor: PropertyDescriptor) => {
 
 export const error = (message: string) => {
   if (process && process.env.NODE_ENV !== 'production') {
+    return console.error('[Tuex error] ' + message);
+  }
+}
+
+export const warn = (message: string) => {
+  if (process && process.env.NODE_ENV !== 'production') {
     return console.error('[Tuex warn] ' + message);
   }
 }

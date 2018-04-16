@@ -1,8 +1,8 @@
 node_modules
-ISSUE_TEMPLATE.md
 tests
 coverage
 .gitignore
+.github
 .editorconfig
 .travis.yml
 *.png
