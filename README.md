@@ -1,3 +1,5 @@
+# DEPRECATED in favor of [`vuse-rx`](https://github.com/raiondesu/vuse-rx)
+
 # Tuex (beta)
 
 A simpler Vuex alternative written in TypeScript.
@@ -56,16 +58,3 @@ const TuexStore = new Tuex.Store({
 ...
 ```
 
-## [Roadmap](https://github.com/Raiondesu/Tuex/wiki/Roadmap)
-
-Coming soon:
-- Full Wiki Documentation
-- Refactoring
-- Performance gains
-- Breaking changes
-
-- More configuration options
-- Code coverage
-- Fully Vuex-compatible API (to some extent)
-
-- Component binding helpers
